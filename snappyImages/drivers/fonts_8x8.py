@@ -8,6 +8,9 @@ cur_fontwidth = None
 stext_i_ch = 0
 stext_i_pix = 0
 stext_str = ''
+cur_disp_sym = "\x00\x00\x00\x00\x00\x00\x00\x00"
+cur_next_width = 0
+
 
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
@@ -33,16 +36,17 @@ def get_indexed_sym(ch_code):
 def get_indexed_width(ch_code):
     return ord(cur_fontwidth[ch_code >> 4])
 
-def scroll_right(sym1, sym2, width1, nscroll, gap):
-    """Return scrolled symbol composed of sym1/gap/sym2"""
+def scroll_right(disp_sym, next_sym, ipix):
+    """Return scrolled version of disp_sym, shifting in new columns from the right"""
     sym = ''
     for row in xrange(8):
-        r = (ord(sym1[row]) << nscroll) | (ord(sym2[row]) >> (width1 + gap - nscroll))
+        r = ord(cur_disp_sym[row]) << 1
+        if ipix >= 0 and ((0x80 >> ipix) & ord(next_sym[row])):
+            r |= 0x01
         sym += chr(r & 0xFF)
         
     return sym
-
-
+    
 def set_scroll_text(text):
     """Start scrolling text"""
     global stext_i_ch, stext_i_pix, stext_str
@@ -55,45 +59,37 @@ def stop_scroll_text():
     global stext_str
     stext_str = ''
     
-    
-def update_scroll_text():
-    """Call periodically to update scroll text position"""
-    global stext_i_ch, stext_i_pix, cur_scroll_sym1, cur_scroll_sym2, cur_scroll_width1
-    
-    CHAR_GAP = 1                # Intercharacter pixel space
-    SCROLL_PIX_INCREMENT = 1    # Pixels scrolled per update
+def update_scroll_text(char_gap):
+    """Call periodically to update scroll text position.
+       Intercharacter pixel space set by char_gap.    
+    """
+    global stext_i_ch, stext_i_pix, cur_disp_sym, cur_next_sym, cur_next_width
     
     if not stext_str:
         # Nothing to do if no text to display
         return
     
-    if stext_i_pix == 0:
-        # Starting a new character
+    if stext_i_pix == cur_next_width:
+        # Start shifting in a new character
         c = ord(stext_str[stext_i_ch])
-        cur_scroll_sym1 = get_indexed_sym(c)
-        cur_scroll_width1 = ord(cur_fontwidth[c])
-        next_i_ch = stext_i_ch + 1
-        if next_i_ch == len(stext_str):
-            next_i_ch = 0
-        c = ord(stext_str[next_i_ch])
-        cur_scroll_sym2 = get_indexed_sym(c)
-        
-    # Get scrolled symbol, and send to display
-    sym = scroll_right(cur_scroll_sym1, cur_scroll_sym2, cur_scroll_width1, stext_i_pix, CHAR_GAP)
-    display_drv(sym)
-    
-    # Increment scroll index
-    stext_i_pix += SCROLL_PIX_INCREMENT
-    if stext_i_pix == cur_scroll_width1 + CHAR_GAP:
-        stext_i_pix = 0
+        cur_next_sym = get_indexed_sym(c)
+        cur_next_width = ord(cur_fontwidth[c])
+        stext_i_pix = -char_gap
+
         stext_i_ch += 1
         if stext_i_ch == len(stext_str):
             # Wrap text
             stext_i_ch = 0
-        
-    
-    
-def test_display_driver1(sym):
+
+    # Scroll
+    cur_disp_sym = scroll_right(cur_disp_sym, cur_next_sym, stext_i_pix)
+    stext_i_pix += 1
+
+    # Write to display
+    display_drv(cur_disp_sym)
+
+            
+def test_display_driver_print(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'
     for c in sym:
@@ -105,9 +101,7 @@ def test_display_driver1(sym):
     dsp += '--------'
     print dsp
 
-def test_display_driver2(sym):
+def test_display_driver_mcast(sym):
     """Send symbol over the air for simulated display"""
     mcastRpc(1, 1, 'disp8x8', sym)
-
-
 

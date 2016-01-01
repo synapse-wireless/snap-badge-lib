@@ -8,7 +8,7 @@ def disp8x8(sym):
     """Display symbol on simulated 8x8 LED matrix"""
     sim_display_wx(sym)
     
-def test_display_print(sym):
+def sim_display_print(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'
     for c in sym:
@@ -20,7 +20,7 @@ def test_display_print(sym):
     dsp += '--------'
     print dsp
 
-def test_display_wx(sym):
+def sim_display_wx(sym):
     """Simulate 8x8 display using wx graphics library"""
     global frame
     if not frame:
