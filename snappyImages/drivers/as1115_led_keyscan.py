@@ -58,28 +58,8 @@ AS_BLINK_FREQ = 0x20  # 0=1sec, 1=2sec period (50% duty cycle)
 AS_SYNC = 0x40        # Enable multi-device blink sync
 AS_BLINK_PHASE = 0x80 # 0=Start with "off", 1=Start with "on"
 
-
-# Test characters for matrix mode
-TEST_SYN = [ 0b00011000,
-             0b01000010,
-             0b01111000,
-             0b10000100,
-             0b00100000,
-             0b00001000,
-             0b10000100,
-             0b01111000 ]
-TEST_SYN = ''.join(map(chr, TEST_SYN))  # convert to string
-
-TEST_UP  = [ 0b00011000,
-             0b00111100,
-             0b11111111,
-             0b00111100,
-             0b00111100,
-             0b00111100,
-             0b00111100,
-             0b00000000 ]
-TEST_UP = ''.join(map(chr, TEST_UP))  # convert to string
-
+# Symbol for testing
+SYM_CHECKERBOARD = "\xAA\x55\xAA\x55\xAA\x55\xAA\x55"
 
 def as1115_init():
     """Initialize AS1115 for matrix-mode operation. Assumes i2c already initialized."""

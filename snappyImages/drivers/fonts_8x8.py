@@ -9,8 +9,6 @@ stext_i_ch = 0
 stext_i_pix = 0
 stext_str = ''
 
-SYM_SPACE = "\x00\x00\x00\x00\x00\x00\x00\x00"
-
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
 
@@ -62,8 +60,6 @@ def update_scroll_text():
     """Call periodically to update scroll text position"""
     global stext_i_ch, stext_i_pix, cur_scroll_sym1, cur_scroll_sym2, cur_scroll_width1
     
-    print "Update: stext_str=", stext_str
-    
     CHAR_GAP = 1                # Intercharacter pixel space
     SCROLL_PIX_INCREMENT = 1    # Pixels scrolled per update
     
@@ -75,7 +71,7 @@ def update_scroll_text():
         # Starting a new character
         c = ord(stext_str[stext_i_ch])
         cur_scroll_sym1 = get_indexed_sym(c)
-        cur_scroll_width1 = ord(cur_fontwidth[c >> 4])
+        cur_scroll_width1 = ord(cur_fontwidth[c])
         next_i_ch = stext_i_ch + 1
         if next_i_ch == len(stext_str):
             next_i_ch = 0
@@ -97,7 +93,6 @@ def update_scroll_text():
         
     
     
-    
 def test_display_driver1(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'
@@ -113,7 +108,6 @@ def test_display_driver1(sym):
 def test_display_driver2(sym):
     """Send symbol over the air for simulated display"""
     mcastRpc(1, 1, 'disp8x8', sym)
-    #rpc('\x00\x00\x01', 'disp8x8', sym)
 
 
 
