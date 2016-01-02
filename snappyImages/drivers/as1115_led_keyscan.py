@@ -58,35 +58,41 @@ AS_BLINK_FREQ = 0x20  # 0=1sec, 1=2sec period (50% duty cycle)
 AS_SYNC = 0x40        # Enable multi-device blink sync
 AS_BLINK_PHASE = 0x80 # 0=Start with "off", 1=Start with "on"
 
-# Symbol for testing
+# Symbols for matrix-mode
 SYM_CHECKERBOARD = "\xAA\x55\xAA\x55\xAA\x55\xAA\x55"
+SYM_ALL_OFF = "\x00" * 8
+SYM_ALL_ON  = "\xFF" * 8
 
 def as1115_init():
     """Initialize AS1115 for matrix-mode operation. Assumes i2c already initialized."""
     as1115_wr(SHUTDOWN, NORMAL_RST)
     as1115_wr(DECODE_MODE, 0)
     as1115_wr(GLOB_INTENS, 15)
-    as1115_set_matrix_rows(TEST_SYN)
+    as1115_write_matrix_symbol(SYM_ALL_OFF)
     
 def as1115_enable(do_enable):
-    as1115_wr(SHUTDOWN, do_enable ? NORMAL_SAVE : SHUTDOWN_SAVE)
+    as1115_wr(SHUTDOWN, NORMAL_SAVE if do_enable else SHUTDOWN_SAVE)
 
 def as1115_set_matrix_row(row, pix_byte):
     """Set designated row (0-7) to given pixel mask"""
     as1115_wr(row + 1, pix_byte)
     
-def as1115_set_matrix_rows(pix_bytes):
-    """Set all matrix rows using 8-byte string"""
+def as1115_write_matrix_symbol(pix_bytes):
+    """Set all matrix rows to given 8-byte 'symbol' string"""
     i2cWrite(AS1115_ADDR_WR + '\x01' + pix_bytes, 1, False)
 
 def as1115_wr(reg, data):
     i2cWrite(AS1115_ADDR_WR + chr(reg) + chr(data), 1, False)
 
 def as1115_rd(reg):
-    """Read a single register"""
-    # Note: device supports auto-increment addressing, so if reading multiple sequential registers
-    # you may want to write a different function.
+    """Read a single register, return integer value"""
     i2cWrite(AS1115_ADDR_WR + chr(reg), 1, False)
     s = i2cRead(AS1115_ADDR_RD, 1, 1, False)
     return ord(s)
+
+def as1115_rd_multi(start_reg, n_read):
+    """Read a block of registers, return as string"""
+    i2cWrite(AS1115_ADDR_WR + chr(start_reg), 1, False)
+    s = i2cRead(AS1115_ADDR_RD, n_read, 1, False)
+    return s
 

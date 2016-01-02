@@ -8,18 +8,21 @@ cur_fontwidth = None
 stext_i_ch = 0
 stext_i_pix = 0
 stext_str = ''
-cur_disp_sym = "\x00\x00\x00\x00\x00\x00\x00\x00"
-cur_next_width = 0
+cur_next_width = 0  # width of symbol being scrolled-in
 
+# Current displayed symbol, in 8-byte string format
+cur_disp_sym = "\x00" * 8
 
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
 
 def set_display_driver(drv):
+    """Set destination for symbol output"""
     global display_drv
     display_drv = drv
 
 def load_font(fontset, fontwidth):
+    """Load a font-set. Takes effect for all subsequent symbol operations."""
     global cur_fontset, cur_fontwidth
     cur_fontset = fontset
     cur_fontwidth = fontwidth
@@ -28,22 +31,30 @@ def get_indexed_sym(ch_code):
     """Return binary symbol string for indexed character in current fontset. Symbol itself is 
        an 8-byte string.
     """
-    print "get_i_sym(", ch_code, ')'
     i_str = ch_code >> 4  # fontsets are stored as 16-char strings
     i_sym = (ch_code & 0x0F) << 3  # strings are composed of 8-byte symbols
     return cur_fontset[i_str][i_sym : i_sym + 8]
 
 def get_indexed_width(ch_code):
-    return ord(cur_fontwidth[ch_code >> 4])
+    """Return pixel-width of indexed character"""
+    return ord(cur_fontwidth[ch_code])
 
 def scroll_right(disp_sym, next_sym, ipix):
     """Return scrolled version of disp_sym, shifting in new columns from the right"""
     sym = ''
-    for row in xrange(8):
-        r = ord(cur_disp_sym[row]) << 1
-        if ipix >= 0 and ((0x80 >> ipix) & ord(next_sym[row])):
-            r |= 0x01
-        sym += chr(r & 0xFF)
+    
+    # Note: speed optimized, deliberately redundant.
+    if ipix < 0:
+        for row in xrange(8):
+            r = ord(cur_disp_sym[row]) << 1
+            sym += chr(r & 0xFF)
+    else:
+        pix_mask = 0x80 >> ipix
+        for row in xrange(8):
+            r = ord(cur_disp_sym[row]) << 1
+            if (pix_mask & ord(next_sym[row])):
+                r |= 0x01
+            sym += chr(r & 0xFF)
         
     return sym
     
