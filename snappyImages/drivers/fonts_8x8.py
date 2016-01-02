@@ -46,12 +46,12 @@ def scroll_right(disp_sym, next_sym, ipix):
     # Note: speed optimized, deliberately redundant.
     if ipix < 0:
         for row in xrange(8):
-            r = ord(cur_disp_sym[row]) << 1
+            r = ord(disp_sym[row]) << 1
             sym += chr(r & 0xFF)
     else:
         pix_mask = 0x80 >> ipix
         for row in xrange(8):
-            r = ord(cur_disp_sym[row]) << 1
+            r = ord(disp_sym[row]) << 1
             if (pix_mask & ord(next_sym[row])):
                 r |= 0x01
             sym += chr(r & 0xFF)
