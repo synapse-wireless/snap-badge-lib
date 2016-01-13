@@ -1,4 +1,8 @@
-"""Font utilities for 8x8 displays"""
+"""Font utilities for 8x8 display support in SNAPpy.
+
+   Use the 'fontconv.py' utility to convert binary 8x8 pixel fonts into SNAPpy fontsets
+   compatible with this library.
+"""
 
 # Current loaded fontset / widths
 cur_fontset = None

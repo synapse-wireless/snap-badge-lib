@@ -66,8 +66,9 @@ SYM_ALL_ON  = "\xFF" * 8
 def as1115_init():
     """Initialize AS1115 for matrix-mode operation. Assumes i2c already initialized."""
     as1115_wr(SHUTDOWN, NORMAL_RST)
-    as1115_wr(DECODE_MODE, 0)
-    as1115_wr(GLOB_INTENS, 15)
+    as1115_wr(DECODE_MODE, 0)   # Matrix
+    as1115_wr(SCAN_LIMIT, 7)    # All digits (rows)
+    as1115_wr(GLOB_INTENS, 15)  # Full brightness
     as1115_write_matrix_symbol(SYM_ALL_OFF)
     
 def as1115_enable(do_enable):

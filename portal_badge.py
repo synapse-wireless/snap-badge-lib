@@ -1,4 +1,7 @@
-"""Portal script helper for SNAP Badge"""
+"""Portal script helper for SNAP Badge
+   
+   Provides a simulated LED matrix display for testing in the absence of physical hardware.
+"""
 
 import wx
 
