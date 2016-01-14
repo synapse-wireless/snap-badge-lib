@@ -1,8 +1,6 @@
 """Test script for SNAP Badge"""
 
 from drivers.snap_badge import *
-from drivers.lis3dh_accel import *
-from drivers.as1115_led_keyscan import *
 from synapse.switchboard import *
 
 # Latest DIP switch value
@@ -15,10 +13,7 @@ packetserial_countdown = 0  # seconds grace period before disconnect
 
 @setHook(HOOK_STARTUP)
 def start():
-    badge_init_pins(None)
-    lis_init()
-    writePin(LED_PWR_EN, True)
-    as1115_init()
+    badge_start()
     
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
@@ -71,20 +66,6 @@ def pin_event(pin, is_set):
                 as1115_write_matrix_symbol(SYM_ALL_ON)
     
 
-def test_sleep(secs):
-    """Allow time to measure sleep current"""
-    writePin(STATUS_LED, True)
-    writePin(LED_PWR_EN, False)
-    lis_sleep()
-    
-    # What about button pullups?
-
-    sleep(2, secs)
-    
-    lis_wake()
-    writePin(LED_PWR_EN, True)
-    as1115_init()
-    
 def enable_packet_serial(do_enable):
     global packetserial_enabled
     packetserial_enabled = do_enable
