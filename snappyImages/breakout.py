@@ -1,7 +1,6 @@
 """Classic Breakout game ported to SNAP Badge"""
 
 from drivers.snap_badge import *
-from drivers.as1115_led_keyscan import *
 from pixel_lib import *
 
 MIN_BRICK_LINE = 0
@@ -13,8 +12,7 @@ delay_counter = 0
 @setHook(HOOK_STARTUP)
 def start():
     badge_init_pins()
-    writePin(LED_PWR_EN, True)
-    as1115_init()
+    badge_led_array_enable(True)
     
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
