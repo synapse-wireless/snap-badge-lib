@@ -1,5 +1,8 @@
 """Hardware definitions for SNAP Badge"""
 
+from lis3dh_accel import *
+from as1115_led_keyscan import *
+
 ACC_INT1 = 4      # Accelerometer interrupt 1 (PB4, PCINT4)
 ACC_INT2 = 14     # Accelerometer interrupt 2 (PD6, T1)
 IS_USB = 15       # Tied low when switched to USB power (PD7)
@@ -16,6 +19,10 @@ USB_RXD = 11      # SM220 UART TX
 BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_RIGHT, LED_PWR_EN, I2C_SCL, I2C_SDA, USB_RXD, USB_TXD)
 SM220_EXCL_PINS = (27,32,33,34,35,36)
 
+def badge_start():
+    badge_init_pins(None)
+    lis_init()
+    badge_led_array_enable(True)
 
 def badge_init_pins(user_excludes):
     """Initialize all badge pins default for low-power operation (assuming no shield attached)"""
@@ -44,3 +51,23 @@ def badge_init_pins(user_excludes):
         # Set pin to output/low for lowest power consumption
         setPinDir(pin, True)
         writePin(pin, False)
+        
+def badge_led_array_enable(do_enable):
+    writePin(LED_PWR_EN, do_enable)
+    if do_enable:
+        sleep(2, -2) # Wait 2ms for switching power supply to startup
+        as1115_init()
+        
+
+def badge_sleep(secs):
+    writePin(STATUS_LED, True)
+    badge_led_array_enable(False)
+    lis_sleep()
+    
+    # What about button pullups?
+
+    sleep(2, secs)
+    
+    lis_wake()
+    badge_led_array_enable(True)
+    
