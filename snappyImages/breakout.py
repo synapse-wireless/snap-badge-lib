@@ -4,7 +4,7 @@ from drivers.snap_badge import *
 from pixel_lib import *
 
 MIN_BRICK_LINE = 0
-MAX_BRICK_LINE = 2
+MAX_BRICK_LINE = 3
 
 delay = 0
 delay_counter = 0
@@ -172,7 +172,7 @@ def update_ball():
                 if ball_x_vel == 0:
                     ball_x_vel = -1 # (gets negated down below)
 
-        # Make the rebounds asthetically pleasing
+        # Make the rebounds aesthetically pleasing
         if test_pixel(ball_x, new_y) and not test_pixel(new_x, ball_y):
             ball_y_vel *= -1
         elif test_pixel(new_x, ball_y) and not test_pixel(ball_x, new_y):
@@ -189,7 +189,7 @@ def update_ball():
         if test_pixel(saved_x1, saved_y):
             score += 1
             reset_pixel(saved_x1, saved_y)
-        if test_pixel(saved_x2, saved_y): # asthetics
+        if test_pixel(saved_x2, saved_y): # aesthetics
             score += 1
             reset_pixel(saved_x2, saved_y)
 
