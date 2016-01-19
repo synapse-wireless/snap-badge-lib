@@ -1,3 +1,4 @@
+"""Pixel manipulation library for SNAP Badge"""
 MIN_X = 0
 MAX_X = 7
 MIN_Y = 0
@@ -8,23 +9,15 @@ def cls():
     playfield = [ 0x00 ] * 8
 
 def invalid_coords(x, y):
-    if x < MIN_X:
-        return True
-    if x > MAX_X:
-        return True
-    if y < MIN_Y:
-        return True
-    if y > MAX_Y:
-        return True
-    return False
-
+    return not ((MIN_X <= x <= MAX_X) and (MIN_Y <= y <= MAX_Y))
+    
 def set_pixel(x, y):
     global playfield
 
     if invalid_coords(x, y):
         return
 
-    bit = 1 << (7-x)
+    bit = 0x80 >> x
     playfield[y] = playfield[y] | bit
 
 def reset_pixel(x, y):
@@ -33,7 +26,7 @@ def reset_pixel(x, y):
     if invalid_coords(x, y):
         return
 
-    bit = 1 << (7-x)
+    bit = 0x80 >> x
     playfield[y] = playfield[y] & ~bit
 
 def test_pixel(x, y):
@@ -42,7 +35,7 @@ def test_pixel(x, y):
     if invalid_coords(x, y):
         return False
 
-    bit = 1 << (7-x)
+    bit = 0x80 >> x
     return (playfield[y] & bit) != 0
 
 def refresh_pixels():
