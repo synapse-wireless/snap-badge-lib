@@ -15,8 +15,41 @@ I2C_SDA = 9       # I2C data (PD1, SDA)
 USB_TXD = 10      # SM220 UART RX
 USB_RXD = 11      # SM220 UART TX
 
+# Arduino headers
+D0	= 16
+D1	= 17
+D2	= 20
+D3	= 5
+D4	= 23
+D5	= 6
+D6	= 7
+D7	= 12
+D8	= 0
+D9	= 19
+D10	= 21
+D11	= 2   # Differs from Pyduino (MOSI)
+D12	= 3   # Differs from Pyduino (MISO)
+D13	= 1   # Differs from Pyduino (SCK)
+SDA = 9
+SCL = 8
+# Analog I/O pins
+AD0 = 24
+AD1 = 25
+AD2 = 28
+AD3 = 29
+AD4 = 30   # Some shields tie this to SDA
+AD5 = 31   # Some shields tie this to SCL
+# Analog ADC channels
+A0 = 0
+A1 = 1
+A2 = 4
+A3 = 5
+A4 = 6
+A5 = 7
+
 # Exclude pins used by badge, and internally by SM220, from initialization defaults
-BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_RIGHT, LED_PWR_EN, I2C_SCL, I2C_SDA, USB_RXD, USB_TXD)
+BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_RIGHT, LED_PWR_EN, I2C_SCL,
+                   I2C_SDA, USB_RXD, USB_TXD, AD4, AD5)
 SM220_EXCL_PINS = (27,32,33,34,35,36)
 
 def badge_start():
@@ -40,6 +73,10 @@ def badge_init_pins(user_excludes):
     setPinDir(LED_PWR_EN, True)
     writePin(STATUS_LED, True)
     setPinDir(STATUS_LED, True)
+    
+    # Since some shields tie AD4/5 to I2C lines, let them float.
+    setPinDir(AD4, False)
+    setPinDir(AD5, False)
 
     i2cInit(False, I2C_SCL, I2C_SDA)
     
@@ -64,7 +101,7 @@ def badge_sleep(secs):
     badge_led_array_enable(False)
     lis_sleep()
     
-    # What about button pullups?
+    # What about button pullups?  And AD4/5?
 
     sleep(2, secs)
     
