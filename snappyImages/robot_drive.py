@@ -11,7 +11,7 @@ ROBOT_MOTOR_RIGHT = 2
 # 2: currently reversed, since higher duty cycle == SLOWER
 #
 ROBOT_SPEED = 50
-TURN_DIFF = -25 # <- this probably goes POSITIVE if waveform gets inverted
+TURN_DIFF = 25
 
 def set_speed(new_speed):
     global ROBOT_SPEED
