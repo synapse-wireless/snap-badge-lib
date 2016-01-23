@@ -13,6 +13,7 @@ from fixed_point import *
 
 scroll_tick_count = 0
 TEXT_SCROLL_RATE = 10  # centiseconds
+game_change_state = 0
 
 # Latest DIP switch value
 dipsw = 0x00
@@ -54,9 +55,10 @@ def tick10ms():
         scroll_tick_count = 0
         update_scroll_text(1)   # Does nothing if no scroll text
 
-    if dipsw & 0xff == 0x82:
-        roller_update_ball()
-        refresh_pixels()
+    if not game_change_state:
+        if dipsw & 0xff == 0x82:
+            roller_update_ball()
+            refresh_pixels()
 
 
 @setHook(HOOK_1S)
@@ -120,17 +122,23 @@ def set_delay(new_delay):
 @setHook(HOOK_100MS)
 def tick_100ms():
     global delay_counter
+    global game_change_state
 
-    # Breakout
-    if dipsw & 0xff == 0x81:
-        if delay_counter > 0:
-            delay_counter -= 1
-            if delay_counter == 0:
-                delay_counter = delay
-            else:
-                return
-        update_ball()
-        refresh_pixels()
+    if game_change_state:
+        game_change_state -= 1
+        if game_change_state == 0:
+            stop_scroll_text()
+    else:
+        # Breakout
+        if dipsw & 0xFF == 0x81:
+            if delay_counter > 0:
+                delay_counter -= 1
+                if delay_counter == 0:
+                    delay_counter = delay
+                else:
+                    return
+            update_ball()
+            refresh_pixels()
 
 
 @setHook(HOOK_GPIN)
@@ -147,6 +155,7 @@ def init_game():
     global ball_x, ball_y, ball_x_vel, ball_y_vel
     global paddle_x, paddle_y, paddle_width
     global score
+    global game_change_state
 
     score = 0
     
@@ -172,11 +181,8 @@ def init_game():
     ball_x_vel = 1
     ball_y_vel = 1
     
-    set_pixel(ball_x, ball_y)
-
-    refresh_pixels()
-
     set_delay(0)
+    game_change_state = set_scroll_text('breakout  ')
 
 
 def paddle(is_visible):
@@ -288,6 +294,7 @@ def roller_init_game():
     # (We will be computing the averages over each interval from these)
     global ball_x_vel, ball_y_vel
     global ball_x_accel, ball_y_accel
+    global game_change_state
 
     cls()
 
@@ -300,9 +307,7 @@ def roller_init_game():
     ball_x_accel = to_FP(0, 0)
     ball_y_accel = to_FP(0, 0)
 
-    set_pixel(from_FP(ball_x), from_FP(ball_y))
-
-    refresh_pixels()
+    game_change_state = set_scroll_text('rollerball  ')
 
 def roller_update_ball():
     global ball_x, ball_y
