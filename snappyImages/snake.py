@@ -65,12 +65,15 @@ def move_player(dir):
     player_y += delta_y
 
     if invalid_coords(player_x, player_y):
-        game_over()
-
-    if (player_x == food_x) and (player_y == food_y):
-        reset_pixel(food_x, food_y)
-        player_length += 1
-        spawn_food()
+        game_over() # we went out of bounds!
+    elif test_pixel(player_x, player_y):
+        if (player_x == food_x) and (player_y == food_y):
+            reset_pixel(food_x, food_y)
+            refresh_pixels()
+            player_length += 1
+            spawn_food()
+        else:
+            game_over() # we hit ourself!
 
 def draw_snake(render_flag):
     for code in player_segments:
