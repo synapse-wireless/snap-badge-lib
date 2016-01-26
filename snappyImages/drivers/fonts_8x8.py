@@ -69,6 +69,8 @@ def set_scroll_text(text):
     stext_i_pix = 0
     stext_str = text
 
+    return (len(text) -2) * 8
+
 def stop_scroll_text():
     """Stop scrolling text"""
     global stext_str
