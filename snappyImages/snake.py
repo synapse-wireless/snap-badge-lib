@@ -26,8 +26,7 @@ STARTING_X = 3
 STARTING_Y = MAX_Y
 STARTING_DIR = UP
 
-@setHook(HOOK_STARTUP)
-def start():
+def snake_start():
     badge_init_pins()
     lis_init()
     badge_led_array_enable(True)
@@ -36,7 +35,7 @@ def start():
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
 
-    init_game()
+    snake_init()
 
 def encode_coords(x, y):
     return (y << 4) | x
@@ -65,15 +64,12 @@ def move_player(dir):
     player_y += delta_y
 
     if invalid_coords(player_x, player_y):
-        game_over() # we went out of bounds!
-    elif test_pixel(player_x, player_y):
-        if (player_x == food_x) and (player_y == food_y):
-            reset_pixel(food_x, food_y)
-            refresh_pixels()
-            player_length += 1
-            spawn_food()
-        else:
-            game_over() # we hit ourself!
+        game_over()
+
+    if (player_x == food_x) and (player_y == food_y):
+        reset_pixel(food_x, food_y)
+        player_length += 1
+        spawn_food()
 
 def draw_snake(render_flag):
     for code in player_segments:
@@ -93,7 +89,7 @@ def game_over():
         draw_snake(True)
         sleep(0, 1)
         cycles -= 1
-    init_game()
+    snake_init()
 
 def spawn_food():
     global food_x, food_y
@@ -105,7 +101,7 @@ def spawn_food():
             refresh_pixels()
             return
 
-def init_game():
+def snake_init():
     global player_x, player_y, player_dir, player_length, player_segments
 
     cls()
@@ -124,8 +120,7 @@ def init_game():
 
     spawn_food()
 
-@setHook(HOOK_1S)
-def tick():
+def snake_tick_1s():
     global player_segments
 
     move_player(player_dir)
@@ -139,8 +134,7 @@ def tick():
     
     add_segment(player_x, player_y)
 
-@setHook(HOOK_GPIN)
-def pin_event(pin, is_set):
+def snake_pin_event(pin, is_set):
     global player_dir
     if not is_set:
         if pin == BUTTON_LEFT:
@@ -151,3 +145,11 @@ def pin_event(pin, is_set):
             player_dir += 1
             if player_dir > MAX_DIR:
                 player_dir = MIN_DIR
+
+# Set hooks if running game standalone
+if "setHook" in globals():
+    snappyGen.setHook(SnapConstants.HOOK_STARTUP, snake_start)
+    snappyGen.setHook(SnapConstants.HOOK_1S, snake_tick_1s)
+    snappyGen.setHook(SnapConstants.HOOK_GPIN, snake_pin_event)
+
+
