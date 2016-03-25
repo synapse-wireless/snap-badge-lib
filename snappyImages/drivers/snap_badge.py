@@ -47,6 +47,16 @@ A3 = 5
 A4 = 6
 A5 = 7
 
+# DIP Switch Positions
+DIP_STEM     = 0x01
+DIP_ANALOG   = 0x02
+DIP_DIGITAL  = 0x04
+DIP_HARDWARE = 0x08
+DIP_SOFTWARE = 0x10
+DIP_IOT      = 0x20
+DIP_S7       = 0x40
+DIP_S8       = 0x80
+
 # Exclude pins used by badge, and internally by SM220, from initialization defaults
 BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_RIGHT, LED_PWR_EN, I2C_SCL,
                    I2C_SDA, USB_RXD, USB_TXD, AD4, AD5)

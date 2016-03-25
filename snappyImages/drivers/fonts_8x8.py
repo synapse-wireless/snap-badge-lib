@@ -15,7 +15,8 @@ stext_str = ''
 cur_next_width = 0  # width of symbol being scrolled-in
 
 # Current displayed symbol, in 8-byte string format
-cur_disp_sym = "\x00" * 8
+BLANK_DISP = "\x00" * 8
+cur_disp_sym = BLANK_DISP
 
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
@@ -64,10 +65,12 @@ def scroll_right(disp_sym, next_sym, ipix):
     
 def set_scroll_text(text):
     """Start scrolling text"""
-    global stext_i_ch, stext_i_pix, stext_str
+    global stext_i_ch, stext_i_pix, stext_str, cur_next_width, cur_disp_sym
     stext_i_ch = 0
     stext_i_pix = 0
     stext_str = text
+    cur_next_width = 0
+    cur_disp_sym = BLANK_DISP
 
     return (len(text) -2) * 8
 
@@ -78,7 +81,8 @@ def stop_scroll_text():
     
 def update_scroll_text(char_gap):
     """Call periodically to update scroll text position.
-       Intercharacter pixel space set by char_gap.    
+       Intercharacter pixel space set by char_gap.
+       Returns True when display is about to wrap.
     """
     global stext_i_ch, stext_i_pix, cur_disp_sym, cur_next_sym, cur_next_width
     
@@ -104,6 +108,8 @@ def update_scroll_text(char_gap):
 
     # Write to display
     display_drv(cur_disp_sym)
+    
+    return stext_i_ch == 0
 
             
 def test_display_driver_print(sym):

@@ -27,11 +27,7 @@ STARTING_Y = MAX_Y
 STARTING_DIR = UP
 
 def snake_start():
-    badge_init_pins()
-    lis_init()
-    badge_led_array_enable(True)
-    as1115_wr(GLOB_INTENS, 10) # (I just don't like full brightness, your eyes may vary)
-    
+    badge_start()
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
 
@@ -145,6 +141,9 @@ def snake_pin_event(pin, is_set):
             player_dir += 1
             if player_dir > MAX_DIR:
                 player_dir = MIN_DIR
+
+# Hook context, for multi-app switching via app_switch.py
+snake_context = (snake_start, None, None, None, snake_tick_1s, snake_pin_event)
 
 # Set hooks if running game standalone
 if "setHook" in globals():
