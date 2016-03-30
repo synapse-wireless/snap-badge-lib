@@ -9,8 +9,17 @@ Initial state is running "show scroller" script.
   - When near another badge (heartbeat RSSI high), flash "HI"
         - When other badge matches our "interests", flash special sequence
   - When near "many" other badges (N > 5), flash synchronized fireworks
+  
   - "Master Show Broadcast" can override all other modes, with synchronized message for display
-  - NOTE: S8 is the "Anti-Social" bit. When ON, you don't participate in remote-initiated multiplayer modes...
+    ** Initiated from laptop (Synapse guys)
+    ** Messages MUST syncrhonize among all badges!!!
+  - Contest mode:
+    ** Initially all count down: 10...3..2...1...
+    ** All flashing in synchronicity (flash/flash/flash x 10 cycles)
+    ** Successively, badges fade to dark until only winner remains!
+    ** Final winner enters "happy dance"
+    
+  - NOTE: S8 is the "Anti-Social" bit. When ON, you don't participate in remote-initiated multiplayer modes (including HI)...
   - When both buttons pressed, enter "menu select" mode
         - Select from the following:
             - Enter personal message
@@ -33,25 +42,30 @@ from drivers.snap_badge import *
 
 from app_switch import *
 app_hook_init(snappyGen.setHook)
-
-from snake import *
 from menu_select import *
 from drivers.Doodads import *
+
+from snake import *
 from show_scroller import *
+from rollerball import *
+from breakout import *
+from remote import *
+from dice import *
 
 # Top menu icons are a range of Doodads fontset
 esc_topmenu_icons = ''.join([chr(rc) for rc in xrange(128,139)])
+
 esc_selection_contexts = (show_scroller_context,
                           None,  # user_msg
                           None,  # RPS
                           snake_context,  # snake
-                          None,  # rollerball
-                          None,  # breakout
-                          None,  # dice
+                          rollerball_context,  # rollerball
+                          breakout_context,  # breakout
+                          dice_context,  # dice
                           None,  # reflex
                           None,  # level
                           None,  # spectrum
-                          None)  # robot controller
+                          remote_context)  # robot controller
 
 
 @setHook(HOOK_STARTUP)

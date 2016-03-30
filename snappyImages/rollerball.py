@@ -1,7 +1,6 @@
 """SNAP Badge Accelerometer Experiments"""
 
 from drivers.snap_badge import *
-from drivers.lis3dh_accel import *
 from pixel_lib import *
 from fixed_point import *
 
@@ -25,26 +24,16 @@ FRICTION = to_FP(0, 99)
 REBOUND = to_FP(0, -95) # rebounds in the opposite direction PLUS loses some energy
 #REBOUND = to_FP(-1, 0) # rebounds perfectly in the opposite direction
 
-@setHook(HOOK_STARTUP)
-def start():
-    uniConnect(3,4)
-    uniConnect(3,5)
-    ucastSerial("\x00\x00\x01")
+def rollerball_start():
+    """Startup hook when run standalone"""
+    badge_start()
+    rollerball_init()
 
-    badge_init_pins()
-    lis_init()
-    badge_led_array_enable(True)
-    
-    init_game()
-
-@setHook(HOOK_10MS)
-#@setHook(HOOK_100MS)
-#@setHook(HOOK_1S)
-def tick_100ms():
-    update_ball()
+def rollerball_tick10ms():
+    rollerball_update_ball()
     refresh_pixels()
 
-def init_game():
+def rollerball_init():
     global ball_x, ball_y
     # Note that all of these are instantaneous, not average!
     # (We will be computing the averages over each interval from these)
@@ -66,7 +55,7 @@ def init_game():
 
     refresh_pixels()
 
-def update_ball():
+def rollerball_update_ball():
     global ball_x, ball_y
     # Note that all of these are instantaneous, not average!
     # (We will be computing the averages further below in this same routine)
@@ -163,3 +152,13 @@ def update_ball():
 
     ball_x = new_x
     ball_y = new_y
+
+# Hook context, for multi-app switching via app_switch.py
+rollerball_context = (rollerball_init, None, rollerball_tick10ms, None, None, None)
+
+# Set hooks if running game standalone
+if "setHook" in globals():
+    snappyGen.setHook(SnapConstants.HOOK_STARTUP, rollerball_start)
+    snappyGen.setHook(SnapConstants.HOOK_10MS, rollerball_tick10ms)
+
+

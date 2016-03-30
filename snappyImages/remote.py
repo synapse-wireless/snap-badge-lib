@@ -1,32 +1,27 @@
 """Using the accelerometer to make a remote control"""
 
 from drivers.snap_badge import *
-from drivers.lis3dh_accel import *
-
 from eight_way_symbols import *
 
 ACCEL_THRESHOLD = 1500 # smaller number makes it more sensitive to tilt, bigger = less sensitive
 
 
-@setHook(HOOK_STARTUP)
-def start():
-    badge_init_pins()
-    lis_init()
-    badge_led_array_enable(True)
-    as1115_wr(GLOB_INTENS, 10) # (I just don't like full brightness, your eyes may vary)
+def remote_start():
+    """Startup hook when run standalone"""
+    badge_start()
     
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
+    remote_init()
 
+def remote_init():
     as1115_write_matrix_symbol(CENTER_SQUARE)
 
-@setHook(HOOK_100MS)
-def tick():
+def remote_tick100ms():
     if readPin(BUTTON_RIGHT) == False:
         poll_accelerometer()
 
-@setHook(HOOK_GPIN)
-def pin_event(pin, is_set):
+def remote_pin_event(pin, is_set):
     if not is_set: # Presses...
         if pin == BUTTON_LEFT:
             centered()
@@ -122,3 +117,15 @@ def poll_accelerometer():
         left() # diagonals already checked up above...
     elif tilt_right:
         right() # diagonals already checked up above...
+
+# Hook context, for multi-app switching via app_switch.py
+remote_context = (remote_init, None, None, remote_tick100ms, None, remote_pin_event)
+
+# Set hooks if running game standalone
+if "setHook" in globals():
+    snappyGen.setHook(SnapConstants.HOOK_STARTUP, remote_start)
+    snappyGen.setHook(SnapConstants.HOOK_100MS, remote_tick100ms)
+    snappyGen.setHook(SnapConstants.HOOK_GPIN, remote_pin_event)
+
+
+
