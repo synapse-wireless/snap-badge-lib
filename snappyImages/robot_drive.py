@@ -1,15 +1,22 @@
-"""Drive the robot"""
+"""Drive the robot - this is the main SNAPpy script for the Badge-robot.
+
+The robot uses an Adafruit motor shield v2, driving a low-cost dual-motor platform.
+This script is loaded on the badge which is mounted to the robot, with the motor shield attached.
+
+Functions are defined here to allow easy over-the-air control from a remote SNAP device.
+The direct low-level ada_moto_* commands can also be called over the air.
+
+"""
 
 from drivers.snap_badge import *
 from snap_shields.ada_moto_v2 import *
 
+# Define H-bridge channels our motors are attached to
 ROBOT_MOTOR_LEFT = 3
 ROBOT_MOTOR_RIGHT = 2
 
-#
-# The following are 1: Conservative (it can go MUCH faster) and
-# 2: currently reversed, since higher duty cycle == SLOWER
-#
+
+# The following speed is conservative (it can go MUCH faster)
 ROBOT_SPEED = 50
 TURN_DIFF = 25
 

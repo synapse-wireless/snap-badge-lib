@@ -1,4 +1,9 @@
-"""This file defines some 8x8 glyphs for things such as directional remotes"""
+"""This file defines some 8x8 glyphs for things such as directional remotes.
+
+Note: This could be accomplished with fonts_8x8.py which allows using external tools to define symbols.
+      However, the code below illustrates the simplicity of creating LED matrix symbols directly and
+      thus stands as a useful example.
+"""
 
 # OOOOOOOO
 # OOOOOOOO

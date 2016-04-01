@@ -12,7 +12,7 @@ Initial state is running "show scroller" script.
   
   - "Master Show Broadcast" can override all other modes, with synchronized message for display
     ** Initiated from laptop (Synapse guys)
-    ** Messages MUST syncrhonize among all badges!!!
+    ** Messages MUST synchronize among all badges!!!
   - Contest mode:
     ** Initially all count down: 10...3..2...1...
     ** All flashing in synchronicity (flash/flash/flash x 10 cycles)
@@ -53,7 +53,7 @@ from remote import *
 from dice import *
 
 # Top menu icons are a range of Doodads fontset
-esc_topmenu_icons = ''.join([chr(rc) for rc in xrange(128,139)])
+esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x92\x87\x88\x89\x8A'
 
 esc_selection_contexts = (show_scroller_context,
                           None,  # user_msg
@@ -67,11 +67,15 @@ esc_selection_contexts = (show_scroller_context,
                           None,  # spectrum
                           remote_context)  # robot controller
 
+esc_btn_hold = 0
 
 @setHook(HOOK_STARTUP)
 def start():
     set_display_driver(as1115_write_matrix_symbol)
     badge_start()
+    
+    # Reduce radio transmit power, since we only want to socialize with nearby badges
+    txPwr(0)   # approx 0dBm
     
     # We need buttons
     setPinDir(BUTTON_LEFT, False)
@@ -81,7 +85,11 @@ def start():
     setPinPullup(BUTTON_RIGHT, True)
     monitorPin(BUTTON_RIGHT, True)
     
+    # Initialize the app-switching...
     app_switch_set_exit(enter_top_menu)
+    app_switch_set_background_1s(esc_background_tick)
+    
+    # Initially, default to "show_scroller" app
     app_switch(show_scroller_context)
     
 def menu_hook(menu_selected):
@@ -90,8 +98,25 @@ def menu_hook(menu_selected):
         app_switch(context)
 
 def enter_top_menu():
-    """The app_exit() hook for sub-menu scripts - returns execution to top menu"""
-    menu_define(esc_topmenu_icons, Doodads, Doodads_widths, menu_hook, 0)
+    """This is the app_exit() hook for sub-menu scripts - returns execution to top menu"""
+    menu_define(esc_topmenu_icons, Doodads, Doodads_widths, menu_hook, menu_selected)
+    
+    # Switch to the "menu_select" app
     app_switch(menu_context)
     
+def esc_background_tick():
+    """Called every 1s tick"""
+    global esc_btn_hold
     
+    # Detect "both buttons held" exit command
+    lb = not readPin(BUTTON_LEFT)
+    rb = not readPin(BUTTON_RIGHT)
+    
+    # Exit to menu if both buttons held for 1-2 secs
+    if lb and rb:
+        esc_btn_hold += 1
+        if esc_btn_hold == 2:
+            enter_top_menu()
+            esc_btn_hold = 0
+    else:
+        esc_btn_hold = 0

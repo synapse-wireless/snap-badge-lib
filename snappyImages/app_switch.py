@@ -10,6 +10,7 @@ Usage:
 # Import HOOK_* constants
 from snappy.hooks import *
 
+current_context = None
 
 def app_hook_init(setHook):
     """Compile-time: intercept SNAPpy system HOOKs for switching between application scripts"""
@@ -26,7 +27,9 @@ def app_switch(new_context):
        new_context tuple format:
          (INIT, 1MS, 10MS, 100MS, 1S, GPIN)
     """
-    global as_init, as_tick1ms, as_tick10ms, as_tick100ms, as_tick1s, as_pin_event
+    global as_init, as_tick1ms, as_tick10ms, as_tick100ms, as_tick1s, as_pin_event, current_context
+    
+    current_context = new_context
     
     h = app_context(new_context[0])
     if h:
@@ -61,6 +64,11 @@ def app_switch_set_exit(exit_func):
     global app_exit
     app_exit = exit_func
 
+def app_switch_set_background_1s(bg_func):
+    """Set a background function - called regardless of which app is loaded"""
+    global as_background_1s
+    as_background_1s = bg_func
+
 def app_context(func):
     if func:
         return func
@@ -82,6 +90,7 @@ def _tick100ms():
     as_tick100ms()
     
 def _tick1s():
+    as_background_1s()
     as_tick1s()
     
 def _pin_event(pin, is_set):
@@ -95,7 +104,7 @@ as_tick10ms = fpass
 as_tick100ms = fpass
 as_tick1s = fpass
 as_pin_event = fpass
+as_background_1s = fpass
 
 app_switch_pass = (fpass, fpass, fpass, fpass, fpass, fpass)
-
 

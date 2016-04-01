@@ -1,4 +1,8 @@
-"""menu_select: SNAP Badge script to allow user selection from a list of icons"""
+"""menu_select: SNAP Badge script to allow user selection from a list of icons.
+
+TODO: factor out animation, replace with animation.py helper functions.
+
+"""
 
 from drivers.fonts_8x8 import *
 from drivers.Doodads import *
