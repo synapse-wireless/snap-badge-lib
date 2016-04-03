@@ -10,6 +10,7 @@ The direct low-level ada_moto_* commands can also be called over the air.
 
 from drivers.snap_badge import *
 from snap_shields.ada_moto_v2 import *
+from sweep_leds import *
 
 # Define H-bridge channels our motors are attached to
 ROBOT_MOTOR_LEFT = 3
@@ -28,6 +29,10 @@ def set_speed(new_speed):
 def start():
     badge_start()
     ada_moto_init()
+
+@setHook(HOOK_100MS)
+def tick100ms():
+    sweep_tick()
 
 #
 # Robot capabilities

@@ -1,6 +1,7 @@
 """Animation helper for SNAP Badge"""
 
 from drivers.snap_badge import *
+from drivers.fonts_8x8 import *
 
 anim_rate = 0       # Number of 10ms ticks per frame
 anim_icon_set = ""  # Indices into currently loaded fontset
@@ -25,12 +26,13 @@ def anim_begin():
 def anim_tick10ms():
     """Call this from SNAPpy's HOOK_10MS to drive animation"""
     global anim_tick
-    
-    if anim_tick:
-        anim_tick -= 1
-    else:
-        anim_tick = anim_rate
-        anim_frame()
+
+    if anim_countdown:
+        if anim_tick:
+            anim_tick -= 1
+        else:
+            anim_tick = anim_rate
+            anim_frame()
 
 def anim_show(i):
     """Show the indexed icon"""
@@ -47,3 +49,6 @@ def anim_frame():
         else:
             anim_done()
     
+def animating():
+    """Return True if animation ongoing"""
+    return anim_countdown > 0

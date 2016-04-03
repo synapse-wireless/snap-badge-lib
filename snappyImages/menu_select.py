@@ -1,26 +1,22 @@
 """menu_select: SNAP Badge script to allow user selection from a list of icons.
-
-TODO: factor out animation, replace with animation.py helper functions.
-
 """
 
 from drivers.fonts_8x8 import *
 from drivers.Doodads import *
+from animation import *
 
-SELECT_ANIM_ICON_BASE = 108   # Doodads font index
+# Play animation (Doodads font indices) to confirm selection
+menu_selected_anim = "\x72\x71\x70\x6f\x6e\x6d\x69\x69"
 
 menu_selected = 0
 menu_fontset = None
 menu_fontwidth = None
 menu_items = None
 menu_select_callback = None
-menu_anim_tick = 0   # Animation based on 10ms tick
-menu_anim_rate = 5   # Ticks per animation frame
 
 # Button states
 sel_left_state = False
 sel_right_state = False
-
 
 def menu_start():
     """Startup hook when run standalone"""
@@ -32,26 +28,29 @@ def menu_start():
     setPinDir(BUTTON_RIGHT, False)
     setPinPullup(BUTTON_RIGHT, True)
     monitorPin(BUTTON_RIGHT, True)
+    
+    # Test menu
+    menu_define("\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29", Doodads, Doodads_widths, None, 0)
+    
     menu_init()
     
 def menu_init():
-    """Initialize menu selection. Assumes badge already initialized."""
+    """Initialize menu selection. Assumes badge already initialized, and a menu defined."""
     global sel_left_state, sel_right_state
     sel_left_state = not readPin(BUTTON_LEFT)
     sel_right_state = not readPin(BUTTON_RIGHT)
 
+    anim_init(menu_selected_anim, 3, selected_anim_done)
+
+    load_font(menu_fontset, menu_fontwidth)
     menu_update_display()
-    
-    setPinDir(STATUS_LED, True)
-    writePin(STATUS_LED, True)   # Active low
 
 def menu_define(items, fontset, fontwidth, hook, first):
-    """Define a new menu"""
+    """Define a new menu. Only one at a time can be held."""
     global menu_selected, menu_items, menu_select_callback,  menu_fontset, menu_fontwidth
     menu_fontset = fontset
     menu_fontwidth = fontwidth
     menu_items = items
-    load_font(menu_fontset, menu_fontwidth)
     menu_select_callback = hook
     menu_selected = first
 
@@ -68,7 +67,7 @@ def menu_pin_event(pin, is_set):
     sel_right_state = right_press
     
     # Ignore buttons while doing select animation (also serves as debounce interval)
-    if select_anim_countdown:
+    if animating():
         return
 
     # Advance to next/prev selection
@@ -81,43 +80,20 @@ def menu_pin_event(pin, is_set):
     
     if both_press:
         # Pressing both buttons ultimately generates "Select" callback
-        start_select_animation()
+        load_font(Doodads, Doodads_widths)
+        anim_begin()
     else:
         menu_update_display()
 
-
-select_anim_countdown = 0
-def start_select_animation():
-    global select_anim_countdown
-    select_anim_countdown = 6   # Number of icons in animation, zero returns to menu selection
-    load_font(Doodads, Doodads_widths)
-    select_anim_show()
-
-def select_anim_show():
-    display_drv(get_indexed_sym(SELECT_ANIM_ICON_BASE + select_anim_countdown))
-    pulsePin(STATUS_LED, 10, False)
+def selected_anim_done():
+    """Called when 'selected' animation completes"""
+    load_font(menu_fontset, menu_fontwidth)
+    menu_update_display()
+    if menu_select_callback:
+        menu_select_callback(menu_selected)
 
 def menu_tick10ms():
-    global menu_anim_tick
-    
-    if menu_anim_tick:
-        menu_anim_tick -= 1
-    else:
-        menu_anim_tick = menu_anim_rate
-        menu_anim_frame()
-        
-def menu_anim_frame():
-    global select_anim_countdown
-    
-    if select_anim_countdown:
-        select_anim_countdown -= 1
-        if select_anim_countdown:
-            select_anim_show()
-        else:
-            load_font(menu_fontset, menu_fontwidth)
-            menu_update_display()
-            menu_select_callback(menu_selected)
-    
+    anim_tick10ms()
         
 def menu_update_display():
     display_drv(get_indexed_sym(ord(menu_items[menu_selected])))
@@ -130,7 +106,7 @@ menu_context = (menu_init, None, menu_tick10ms, None, None, menu_pin_event)
 if "setHook" in globals():
     snappyGen.setHook(SnapConstants.HOOK_STARTUP, menu_start)
     snappyGen.setHook(SnapConstants.HOOK_GPIN, menu_pin_event)
-    snappyGen.setHook(SnapConstants.HOOK_100MS, menu_tick100ms)
+    snappyGen.setHook(SnapConstants.HOOK_10MS, menu_tick10ms)
 
 
 
