@@ -51,13 +51,14 @@ from rollerball import *
 from breakout import *
 from remote import *
 from dice import *
+from rps import *
 
 # Top menu icons are a range of Doodads fontset
 esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x92\x87\x88\x89\x8A'
 
 esc_selection_contexts = (show_scroller_context,
                           None,  # user_msg
-                          None,  # RPS
+                          rps_context,  # RPS
                           snake_context,  # snake
                           rollerball_context,  # rollerball
                           breakout_context,  # breakout
@@ -101,6 +102,9 @@ def enter_top_menu():
     """This is the app_exit() hook for sub-menu scripts - returns execution to top menu"""
     menu_define(esc_topmenu_icons, Doodads, Doodads_widths, menu_hook, menu_selected)
     
+    # Assorted cleanup
+    as1115_wr(FEATURE, 0)  # Disable blinking and other shenanigans
+
     # Switch to the "menu_select" app
     app_switch(menu_context)
     

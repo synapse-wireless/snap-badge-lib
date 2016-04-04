@@ -16,9 +16,9 @@ from drivers.true_random import *
 from gestures import *
 
 # Dice icons are the following indices of Doodads fontset
-dice_icons = '\x07\x08\x09\x0A\x0B\x0C\x0D'
+dice_icons = '\x07\x08\x09\x0A\x0B\x0C'
 
-NEARBY_SIGNAL = 60   # Threshold for nearby badges we want to associate with (-dBm)
+DICE_NEARBY_SIGNAL = 60   # Threshold for nearby badges we want to associate with (-dBm)
 
 def dice_start():
     """Startup hook when run standalone"""
@@ -47,7 +47,7 @@ def dice_anim_done():
 def dice_down():
     """Someone has thrown down the dice! Triggered by accelerometer."""
     print "Down!"
-    anim_begin()
+    anim_begin(1)
     mcastRpc(1, 1, 'dice_remote_down')
 
 def dice_remote_down():
@@ -55,7 +55,7 @@ def dice_remote_down():
     # Only respond if badge is in "dice" mode
     if current_context == dice_context:
         # Only respond to nearby badges 
-        if getLq() < NEARBY_SIGNAL:
+        if getLq() < DICE_NEARBY_SIGNAL:
             anim_begin()
 
 def dice_tick10ms():

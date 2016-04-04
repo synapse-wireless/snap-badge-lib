@@ -9,8 +9,9 @@ from drivers.lis3dh_accel import *
 # Detected gestures
 GESTURE_DOWN = 0
 
-gesture_debounce = 0
+gesture_debounce = 20
 gesture_cb = None
+
 
 def gesture_set_callback(cb):
     """Set callback when gesture detected. Callback receives detected gesture type as parameter.

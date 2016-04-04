@@ -81,7 +81,7 @@ def menu_pin_event(pin, is_set):
     if both_press:
         # Pressing both buttons ultimately generates "Select" callback
         load_font(Doodads, Doodads_widths)
-        anim_begin()
+        anim_begin(1)
     else:
         menu_update_display()
 

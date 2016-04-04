@@ -2,6 +2,7 @@
 
 from lis3dh_accel import *
 from as1115_led_keyscan import *
+from nv_settings import *
 
 ACC_INT1 = 4      # Accelerometer interrupt 1 (PB4, PCINT4)
 ACC_INT2 = 14     # Accelerometer interrupt 2 (PD6, T1)
@@ -63,6 +64,7 @@ BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_R
 SM220_EXCL_PINS = (27,32,33,34,35,36)
 
 def badge_start():
+    init_nv_settings(1, 0, True, True, False)   # Radio params: mcast_proc, mcast_fwd, cs, ca, cd
     badge_init_pins(None)
     lis_init()
     badge_led_array_enable(True)
@@ -89,6 +91,7 @@ def badge_init_pins(user_excludes):
     setPinDir(AD5, False)
 
     i2cInit(False, I2C_SCL, I2C_SDA)
+    i2cFlush(16)
     
     # Init all other non-excluded pins
     for pin in xrange(38):
@@ -98,14 +101,13 @@ def badge_init_pins(user_excludes):
         # Set pin to output/low for lowest power consumption
         setPinDir(pin, True)
         writePin(pin, False)
-        
+ 
 def badge_led_array_enable(do_enable):
     writePin(LED_PWR_EN, do_enable)
     if do_enable:
         sleep(2, -2) # Wait 2ms for switching power supply to startup
         as1115_init()
-        
-
+       
 def badge_sleep(secs):
     writePin(STATUS_LED, True)
     badge_led_array_enable(False)
@@ -117,4 +119,26 @@ def badge_sleep(secs):
     
     lis_wake()
     badge_led_array_enable(True)
+
+    
+def i2cFlush(nbytes):
+    """Flush bytes from I2C transactions in progress. This is necessary when, for example, a soft reboot occurs in
+       mid-transaction leaving the still-powered slave device waiting for the master to finish. Since we don't
+       know what state the transaction was in when interrupted, we just clock in the maximum number of bytes expected
+       for any given transfer in the target application.
+       
+       This should be called on startup, after i2cInit().
+    """
+    writePin(I2C_SCL, False)
+    writePin(I2C_SDA, False)
+
+    # Drive the clock to bleed off any bytes-in-progress
+    for i in xrange(nbytes*8):
+        setPinDir(I2C_SCL, False) # High
+        setPinDir(I2C_SCL, True)  # Low
+        
+    # Generate STOP
+    setPinDir(I2C_SDA, True)  # Data low
+    setPinDir(I2C_SCL, False) # Clock high
+    setPinDir(I2C_SDA, False) # Data high
     

@@ -63,12 +63,6 @@ def breakout_init():
             col += 1
         row += 1
 
-    # Experiment - try for a psuedo-3D effect by applying a gradient to the entire screen
-    as1115_wr(DIG01_INTENS, 0x10)
-    as1115_wr(DIG23_INTENS, 0x32)
-    as1115_wr(DIG45_INTENS, 0x54)
-    as1115_wr(DIG67_INTENS, 0x76)
-
     paddle_x = 0 # we are tracking the paddle by it's left-most edge
     paddle_y = 7
     paddle_width = 3
