@@ -70,14 +70,19 @@ def dice_tick10ms():
     
     gesture_poll_10ms()
 
+def dice_pin_event(pin, is_set):
+    if not is_set:
+        if readPin(BUTTON_LEFT) ^ readPin(BUTTON_RIGHT):
+            dice_down()
 
 # Hook context, for multi-app switching via app_switch.py
-dice_context = (dice_init, None, dice_tick10ms, None, None, None)
+dice_context = (dice_init, None, dice_tick10ms, None, None, dice_pin_event)
 
 # Set hooks if running game standalone
 if "setHook" in globals():
     snappyGen.setHook(SnapConstants.HOOK_STARTUP, dice_start)
     snappyGen.setHook(SnapConstants.HOOK_10MS, dice_tick10ms)
+    snappyGen.setHook(SnapConstants.HOOK_GPIN, dice_pin_event)
 
 
 

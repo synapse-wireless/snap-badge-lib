@@ -12,6 +12,7 @@ tick_count = 0
 UPDATE_RATE = 15  # centiseconds
 app_exit = None
 show_info_mode = False
+antisocial = True
 
 def show_scroller_start():
     """Startup hook when run standalone"""
@@ -66,6 +67,8 @@ def poll_dipsw():
         update_dipsw(True)
 
 def update_dipsw(dip_change):
+    global antisocial
+    
     stext = show_scroller_text
     
     user_msg = loadNvParam(NV_USER_MSG)
@@ -78,18 +81,21 @@ def update_dipsw(dip_change):
     if dip_change:
         i_disp = len(stext)
     
-    if dipsw & DIP_STEM:
-        stext += "STEM  "
-    if dipsw & DIP_ANALOG:
-        stext += "Analog  "
-    if dipsw & DIP_DIGITAL:
-        stext += "Digital  "
-    if dipsw & DIP_HARDWARE:
-        stext += "Hardware  "
-    if dipsw & DIP_SOFTWARE:
-        stext += "Software  "
-    if dipsw & DIP_IOT:
-        stext += "IoT  "
+    antisocial = (dipsw & DIP_S8) != 0
+    
+    if not antisocial:
+        if dipsw & DIP_STEM:
+            stext += "STEM  "
+        if dipsw & DIP_ANALOG:
+            stext += "Analog  "
+        if dipsw & DIP_DIGITAL:
+            stext += "Digital  "
+        if dipsw & DIP_HARDWARE:
+            stext += "Hardware  "
+        if dipsw & DIP_SOFTWARE:
+            stext += "Software  "
+        if dipsw & DIP_IOT:
+            stext += "IoT  "
         
     set_scroll_text(stext)
     set_scroll_index(i_disp)

@@ -7,7 +7,7 @@ from animation import *
 
 # Play animation (Doodads font indices) to confirm selection
 menu_selected_anim = "\x72\x71\x70\x6f\x6e\x6d\x69\x69"
-menu_startup_anim = "\x69\x6d\x6e\x6f\x70\x71\x72\x72"
+menu_exit_anim = "\x69\x6d\x6e\x6f\x70\x71\x72\x72"      # Reverse of selected animation
 
 menu_selected = 0
 menu_fontset = None
@@ -46,15 +46,18 @@ def menu_init():
     global sel_left_state, sel_right_state
     sel_left_state = not readPin(BUTTON_LEFT)
     sel_right_state = not readPin(BUTTON_RIGHT)
+    menu_setup_for_selection()
 
-    anim_init(menu_startup_anim, 3, menu_init2)
-    load_font(menu_fontset, menu_fontwidth)
-    anim_begin(1)
-
-def menu_init2():
+def menu_setup_for_selection():
     anim_init(menu_selected_anim, 3, selected_anim_done)
-
+    load_font(menu_fontset, menu_fontwidth)
     menu_update_display()
+
+def menu_play_exit_anim():
+    """Play exit animation - invoke from 'parent menu' for visual cue that user is exiting"""
+    anim_init(menu_exit_anim, 3, menu_setup_for_selection)
+    load_font(Doodads, Doodads_widths)
+    anim_begin(1)
 
 def menu_define(items, fontset, fontwidth, hook, first):
     """Define a new menu. Only one at a time can be held."""
@@ -64,7 +67,6 @@ def menu_define(items, fontset, fontwidth, hook, first):
     menu_items = items
     menu_select_callback = hook
     menu_selected = first
-
 
 def menu_button_poll():
     global menu_selected, sel_left_state, sel_right_state, button_poll_ticks, button_hold_count
@@ -133,7 +135,6 @@ def menu_button_poll():
 def selected_anim_done():
     """Called when 'selected' animation completes"""
     load_font(menu_fontset, menu_fontwidth)
-    menu_update_display()
     if menu_select_callback:
         menu_select_callback(menu_selected)
 

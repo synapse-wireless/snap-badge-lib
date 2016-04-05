@@ -56,7 +56,7 @@ from badge_post import *
 from user_message import *
 
 # Top menu icons are a range of Doodads fontset
-esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x92\x87\x88\x89\x8A'
+esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x0B\x87\x88\x89\x8A'
 
 esc_selection_contexts = (show_scroller_context,
                           user_message_context,  # user_msg
@@ -113,6 +113,8 @@ def enter_top_menu():
 
     # Switch to the "menu_select" app
     app_switch(menu_context)
+    
+    menu_play_exit_anim()
     
 def esc_background_tick():
     """Called every 1s tick"""
