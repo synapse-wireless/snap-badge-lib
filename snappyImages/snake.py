@@ -51,21 +51,13 @@ def add_segment(x, y):
     player_segments = [ encode_coords(x, y) ] + player_segments
 
 def move_player(dir):
-    global player_x, player_y, player_length
+    global player_x, player_y
 
     delta_x = OFFSETS[dir][0]
     delta_y = OFFSETS[dir][1]
     
     player_x += delta_x
     player_y += delta_y
-
-    if invalid_coords(player_x, player_y):
-        game_over()
-
-    if (player_x == food_x) and (player_y == food_y):
-        reset_pixel(food_x, food_y)
-        player_length += 1
-        spawn_food()
 
 def draw_snake(render_flag):
     for code in player_segments:
@@ -89,13 +81,25 @@ def game_over():
 
 def spawn_food():
     global food_x, food_y
+
+    # Compute most likely NEXT location of snake head
+    delta_x = OFFSETS[player_dir][0]
+    delta_y = OFFSETS[player_dir][1]
+
+    next_player_x = player_x + delta_x
+    next_player_y = player_y + delta_y
+
     while True:
         food_x = random() % (MAX_X + 1)
         food_y = random() % (MAX_Y + 1)
-        if test_pixel(food_x, food_y) == False:
-            set_pixel(food_x, food_y)
-            refresh_pixels()
-            return
+        # Disallow putting food right in front of the snake's mouth
+        if (food_x != next_player_x) and (food_y != next_player_y):
+            # Disallow putting the food on top of the snake
+            if test_pixel(food_x, food_y) == False:
+                # Found a good spot!
+                set_pixel(food_x, food_y)
+                refresh_pixels()
+                return
 
 def snake_init():
     global player_x, player_y, player_dir, player_length, player_segments
@@ -107,20 +111,39 @@ def snake_init():
     player_dir = STARTING_DIR
 
     player_segments = []
+    add_segment(player_x, player_y)
+    sleep(0, 1)
 
     player_length = STARTING_LENGTH
     while len(player_segments) < STARTING_LENGTH:
+        move_player(player_dir)
         add_segment(player_x, player_y)
         sleep(0, 1)
-        move_player(player_dir)
 
     spawn_food()
 
 def snake_tick_1s():
-    global player_segments
+    global player_segments, player_length
 
+    # Compute new coords of the snake's head
     move_player(player_dir)
 
+    # Did they try to leave the playfield?
+    if invalid_coords(player_x, player_y):
+        game_over()
+        return
+
+    # Did they hit something?
+    if test_pixel(player_x, player_y):
+        # Was it food?
+        if (player_x == food_x) and (player_y == food_y):
+            player_length += 1
+            spawn_food()
+        else:
+            game_over()
+            return
+
+    # Erase the tail if needed
     if len(player_segments) >= player_length:
         code = player_segments[-1] # get the end of the tail
         x = decode_x(code)
@@ -128,6 +151,7 @@ def snake_tick_1s():
         reset_pixel(x, y)
         player_segments = player_segments[0:player_length-1]
     
+    # NOW draw the head in it's new location
     add_segment(player_x, player_y)
 
 def snake_pin_event(pin, is_set):
