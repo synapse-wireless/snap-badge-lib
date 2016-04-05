@@ -7,6 +7,7 @@ from animation import *
 
 # Play animation (Doodads font indices) to confirm selection
 menu_selected_anim = "\x72\x71\x70\x6f\x6e\x6d\x69\x69"
+menu_startup_anim = "\x69\x6d\x6e\x6f\x70\x71\x72\x72"
 
 menu_selected = 0
 menu_fontset = None
@@ -40,9 +41,13 @@ def menu_init():
     sel_left_state = not readPin(BUTTON_LEFT)
     sel_right_state = not readPin(BUTTON_RIGHT)
 
+    anim_init(menu_startup_anim, 3, menu_init2)
+    load_font(menu_fontset, menu_fontwidth)
+    anim_begin(1)
+
+def menu_init2():
     anim_init(menu_selected_anim, 3, selected_anim_done)
 
-    load_font(menu_fontset, menu_fontwidth)
     menu_update_display()
 
 def menu_define(items, fontset, fontwidth, hook, first):
