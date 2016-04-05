@@ -52,12 +52,14 @@ from breakout import *
 from remote import *
 from dice import *
 from rps import *
+from badge_post import *
+from user_message import *
 
 # Top menu icons are a range of Doodads fontset
 esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x92\x87\x88\x89\x8A'
 
 esc_selection_contexts = (show_scroller_context,
-                          None,  # user_msg
+                          user_message_context,  # user_msg
                           rps_context,  # RPS
                           snake_context,  # snake
                           rollerball_context,  # rollerball
@@ -69,6 +71,7 @@ esc_selection_contexts = (show_scroller_context,
                           remote_context)  # robot controller
 
 esc_btn_hold = 0
+cur_topmenu_selection = 0
 
 @setHook(HOOK_STARTUP)
 def start():
@@ -93,14 +96,17 @@ def start():
     # Initially, default to "show_scroller" app
     app_switch(show_scroller_context)
     
+    
 def menu_hook(menu_selected):
+    global cur_topmenu_selection
+    cur_topmenu_selection = menu_selected
     context = esc_selection_contexts[menu_selected]
     if context:
         app_switch(context)
 
 def enter_top_menu():
     """This is the app_exit() hook for sub-menu scripts - returns execution to top menu"""
-    menu_define(esc_topmenu_icons, Doodads, Doodads_widths, menu_hook, menu_selected)
+    menu_define(esc_topmenu_icons, Doodads, Doodads_widths, menu_hook, cur_topmenu_selection)
     
     # Assorted cleanup
     as1115_wr(FEATURE, 0)  # Disable blinking and other shenanigans

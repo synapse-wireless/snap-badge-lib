@@ -11,7 +11,7 @@ Usage:
     If you win, you'll see a victory animation.
     If you lose, you just see your choice. It is possible for all players to lose (all re-do!)
 
-  Restart using reboot or app_exit (hold both buttons)
+  Restart by pressing either button.
 
 """
 

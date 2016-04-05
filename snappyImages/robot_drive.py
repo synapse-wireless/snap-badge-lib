@@ -18,7 +18,7 @@ ROBOT_MOTOR_RIGHT = 2
 
 
 # The following speed is conservative (it can go MUCH faster)
-ROBOT_SPEED = 50
+ROBOT_SPEED = 80
 TURN_DIFF = 25
 
 def set_speed(new_speed):

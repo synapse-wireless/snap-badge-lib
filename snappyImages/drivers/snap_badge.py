@@ -58,6 +58,9 @@ DIP_IOT      = 0x20
 DIP_S7       = 0x40
 DIP_S8       = 0x80
 
+NV_USER_MSG = NV_USER_MIN_ID + 0
+
+
 # Exclude pins used by badge, and internally by SM220, from initialization defaults
 BADGE_EXCL_PINS = (ACC_INT1, ACC_INT2, IS_USB, STATUS_LED, BUTTON_LEFT, BUTTON_RIGHT, LED_PWR_EN, I2C_SCL,
                    I2C_SDA, USB_RXD, USB_TXD, AD4, AD5)

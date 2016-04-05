@@ -72,23 +72,28 @@ def set_scroll_text(text):
     cur_next_width = 0
     cur_disp_sym = BLANK_DISP
 
-    return (len(text) -2) * 8
-
 def stop_scroll_text():
     """Stop scrolling text"""
     global stext_str
     stext_str = ''
     
+def set_scroll_index(i_ch):
+    global stext_i_ch
+    if i_ch < len(stext_str):
+        stext_i_ch = i_ch
+    
 def update_scroll_text(char_gap):
     """Call periodically to update scroll text position.
        Intercharacter pixel space set by char_gap.
-       Returns True when display is about to wrap.
+       Returns True when new character is about to scroll in.
     """
     global stext_i_ch, stext_i_pix, cur_disp_sym, cur_next_sym, cur_next_width
     
     if not stext_str:
         # Nothing to do if no text to display
         return
+
+    is_start = (stext_i_pix == 0)
     
     if stext_i_pix == cur_next_width:
         # Start shifting in a new character
@@ -109,9 +114,8 @@ def update_scroll_text(char_gap):
     # Write to display
     display_drv(cur_disp_sym)
     
-    return stext_i_ch == 0
-
-            
+    return is_start
+     
 def test_display_driver_print(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'
