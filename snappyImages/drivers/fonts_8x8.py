@@ -21,6 +21,8 @@ cur_disp_sym = BLANK_DISP
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
 
+rotate_scroll = 0  # Support 0, 90, 180, 270 rotations
+
 def set_display_driver(drv):
     """Set destination for symbol output"""
     global display_drv
@@ -43,6 +45,10 @@ def get_indexed_sym(ch_code):
 def get_indexed_width(ch_code):
     """Return pixel-width of indexed character"""
     return ord(cur_fontwidth[ch_code])
+
+def set_scroll_rotation(deg):
+    global rotate_scroll
+    rotate_scroll = deg
 
 def scroll_right(disp_sym, next_sym, ipix):
     """Return scrolled version of disp_sym, shifting in new columns from the right"""
@@ -112,10 +118,51 @@ def update_scroll_text(char_gap):
     stext_i_pix += 1
 
     # Write to display
-    display_drv(cur_disp_sym)
+    ds = rotate_sym(cur_disp_sym, rotate_scroll)
+    display_drv(ds)
     
     return is_start
-     
+
+
+def rotate_sym(sym, deg):
+    """# Support 0, 90, 180, 270 rotations"""
+    if deg == 0:
+        return sym
+    
+    rot = [0] * 8
+    
+    if deg == 90:
+        for i in xrange(8):
+            r = ord(sym[i])   # this row of sym rotates to...
+            b = 1 << i        # this bit position in rows of rot
+            for j in xrange(8):
+                if (1 << j) & r:
+                    val = rot[7-j]
+                    rot[7-j] = val | b
+                    
+    elif deg == 180:
+        for i in xrange(8):
+            r = ord(sym[i])
+            t = 0
+            for j in xrange(8):
+                if (r & (1 << j)):
+                    t |= (0x80 >> j)
+            rot[7-i] = t
+            
+    elif deg == 270:
+        for i in xrange(8):
+            r = ord(sym[i])   # this row of sym rotates to...
+            b = 0x80 >> i     # this bit position in rows of rot
+            for j in xrange(8):
+                if (1 << j) & r:
+                    val = rot[j]
+                    rot[j] = val | b
+                    
+    else:
+        return sym
+    
+    return chr(rot)
+
 def test_display_driver_print(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'

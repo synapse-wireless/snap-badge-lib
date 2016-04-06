@@ -54,6 +54,7 @@ from dice import *
 from rps import *
 from badge_post import *
 from user_message import *
+from level import *
 
 # Top menu icons are a range of Doodads fontset
 esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x0B\x87\x88\x89\x8A'
@@ -66,15 +67,19 @@ esc_selection_contexts = (show_scroller_context,
                           breakout_context,  # breakout
                           dice_context,  # dice
                           None,  # reflex
-                          None,  # level
+                          level_context,  # level
                           None,  # spectrum
                           remote_context)  # robot controller
 
 esc_btn_hold = 0
 cur_topmenu_selection = 0
+lock_rotation = False
+
 
 @setHook(HOOK_STARTUP)
 def start():
+    global lock_rotation
+    
     set_display_driver(as1115_write_matrix_symbol)
     badge_start()
     
@@ -88,6 +93,9 @@ def start():
     setPinDir(BUTTON_RIGHT, False)
     setPinPullup(BUTTON_RIGHT, True)
     monitorPin(BUTTON_RIGHT, True)
+    
+    # Hold left button on boot to lock rotation
+    lock_rotation = not readPin(BUTTON_LEFT)
     
     # Initialize the app-switching...
     app_switch_set_exit(enter_top_menu)
@@ -132,3 +140,19 @@ def esc_background_tick():
             esc_btn_hold = 0
     else:
         esc_btn_hold = 0
+
+    if not lock_rotation:
+        poll_rotation()
+    
+    
+def poll_rotation():
+    lis_read()
+    print lis_axis_x, ",", lis_axis_y, ",", lis_axis_z
+    
+    # Rotate scrolling-text display, with deadband around lying flat
+    if lis_axis_y > 1000 or lis_axis_y < -1000:
+        rot = 180 if lis_axis_y > 0 else 0
+        set_scroll_rotation(rot)
+
+    
+

@@ -145,3 +145,8 @@ def i2cFlush(nbytes):
     setPinDir(I2C_SCL, False) # Clock high
     setPinDir(I2C_SDA, False) # Data high
     
+def abs(x):
+    # 7 minute abs
+    return x if x > 0 else -x
+
+    
