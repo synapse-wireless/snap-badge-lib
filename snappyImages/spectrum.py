@@ -67,8 +67,8 @@ def plot_bars(values, divisor, offset):
         while y > final_value:
             y -= 1
             set_pixel(column, y)
-        refresh_pixels()
         column += 1
+    refresh_pixels()
 
 #
 # Map SNAPpy RSSI values onto 1-8 pixels
