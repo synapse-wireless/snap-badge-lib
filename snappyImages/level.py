@@ -39,6 +39,11 @@ def disp_2_digits(i, rot):
 
 def level_tick100ms():
     """Called by system every 100ms"""
+    
+    # If either button is held, do not update display
+    if not (readPin(BUTTON_RIGHT) and readPin(BUTTON_LEFT)):
+        return
+
     # Poll the accelerometer
     lis_read()
     level_rot = 270 if lis_axis_x > 0 else 90
