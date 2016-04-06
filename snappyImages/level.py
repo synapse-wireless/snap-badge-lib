@@ -42,7 +42,7 @@ def level_tick100ms():
     # Poll the accelerometer
     lis_read()
     level_rot = 270 if lis_axis_x > 0 else 90
-    val = abs(lis_axis_y) / 174
+    val = abs(lis_axis_y) / 178
     if val > 90:
         val = 90
     disp_2_digits(val, level_rot)

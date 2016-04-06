@@ -55,6 +55,7 @@ from rps import *
 from badge_post import *
 from user_message import *
 from level import *
+from spectrum import *
 
 # Top menu icons are a range of Doodads fontset
 esc_topmenu_icons = '\x80\x81\x82\x83\x84\x85\x0B\x87\x88\x89\x8A'
@@ -68,7 +69,7 @@ esc_selection_contexts = (show_scroller_context,
                           dice_context,  # dice
                           None,  # reflex
                           level_context,  # level
-                          None,  # spectrum
+                          spectrum_context,  # spectrum
                           remote_context)  # robot controller
 
 esc_btn_hold = 0
