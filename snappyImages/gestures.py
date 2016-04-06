@@ -7,11 +7,10 @@ Note: this could be enhanced to use the LIS3D hardware for detection, with the a
 from drivers.lis3dh_accel import *
 
 # Detected gestures
-GESTURE_DOWN = 0
+GESTURE_DOWN = 0     # Badge held vertical, then flipped down face-up
 
 gesture_debounce = 20
 gesture_cb = None
-
 
 def gesture_set_callback(cb):
     """Set callback when gesture detected. Callback receives detected gesture type as parameter.
@@ -44,7 +43,7 @@ def gesture_poll_10ms():
         
         # Detect GESTURE_DOWN event
         dz = lis_axis_z - gest_last_z
-        if dz > 10000:
+        if dz > 6000:
             if gesture_cb:
                 gesture_cb(GESTURE_DOWN)
             gesture_debounce = 20

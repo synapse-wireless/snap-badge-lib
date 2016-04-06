@@ -56,7 +56,7 @@ def dice_remote_down():
     if current_context == dice_context:
         # Only respond to nearby badges 
         if getLq() < DICE_NEARBY_SIGNAL:
-            anim_begin()
+            anim_begin(1)
 
 def dice_tick10ms():
     """Called by system every 10ms"""
