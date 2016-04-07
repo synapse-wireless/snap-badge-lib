@@ -25,8 +25,10 @@ def remote_init():
 
 def remote_tick100ms():
     """Called by system, every 100ms"""
-    # Drive if either button is pressed
-    if not (readPin(BUTTON_RIGHT) and readPin(BUTTON_LEFT)):
+    # Drive if either button is pressed, but not both
+    left = not readPin(BUTTON_LEFT)
+    right = not readPin(BUTTON_RIGHT)
+    if left ^ right:
         poll_accelerometer()
     elif not remote_is_centered:
         centered()

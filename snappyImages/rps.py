@@ -31,8 +31,8 @@ spock_mode = False
 rps_state = 0
 
 # Animation icons are the following indices of Doodads fontset
-rps_startup_anim_icons = '\x61\x62\x63\x64\x65\x66\x67\x68'
-rps_await_result_icons = '\x73\x74\x75\x76\x77\x78'
+rps_startup_anim_icons = '\x61\x62\x63\x64\x65\x66\x67\x68'  # Radar
+rps_await_result_icons = '\x73\x74\x75\x76\x77\x78'          # Sine wave
 rps_result_icons = '\x79\x7a\x7b\x90\x91'  # Scissors, Rock, Paper, Lizard, Spock
 
 rps_choice = 0
@@ -77,16 +77,16 @@ def rps_start():
     
 def rps_init():
     """Initialize application - get our animation icons loaded up"""
-    global rps_state, spock_mode
+    global rps_state, spock_mode, rps_rx_enable
     rps_state = 0
+    rps_rx_enable = False
     
     # No blinking
     as1115_wr(FEATURE, 0)
     
     # Check DIP switch S7 - if set, add Lizard/Spock to the mix :)
     sw = ~as1115_rd(KEYB)
-    if sw & DIP_S7:
-        spock_mode = True
+    spock_mode = (sw & DIP_S7)
     
     # Init gesture lib
     gesture_update_accel()
@@ -112,20 +112,25 @@ def rps_gestures(gest_type):
 def rps_fist():
     """Fist down event"""
     global rps_state, rps_rx_enable, rps_choice, rps_score
+    
+    # Number of fist-down events depends on mode: 1-2-3-show, or 1-2-3-4-5-show
+    if spock_mode:
+        choose_state = 5
+        show_state = 6
+    else:
+        choose_state = 3
+        show_state = 4
+    
     if rps_state == 0:
         anim_stop()
+        load_font(DEF8x8, DEF8x8_widths)
     
     rps_state += 1
-    if rps_state == 1:
-        load_font(DEF8x8, DEF8x8_widths)
-        display_drv(get_indexed_sym(ord('1')))
+    if rps_state < choose_state:
+        display_drv(get_indexed_sym(ord('0') + rps_state))
         
-    elif rps_state == 2:
-        load_font(DEF8x8, DEF8x8_widths)
-        display_drv(get_indexed_sym(ord('2')))
-        
-    elif rps_state == 3:
-        display_drv(get_indexed_sym(ord('3')))
+    elif rps_state == choose_state:
+        display_drv(get_indexed_sym(ord('0') + rps_state))
         
         # Choose now!
         divisor = 820 if spock_mode else 1366
@@ -135,7 +140,7 @@ def rps_fist():
         # At this point, we will accept other players choices
         rps_rx_enable = True
         
-    elif rps_state == 4:
+    elif rps_state == show_state:
         # Done! Play final animation while awaiting stragglers...
         load_font(Doodads, Doodads_widths)
         anim_init(rps_await_result_icons, 5, rps_result_anim_done)
@@ -205,9 +210,8 @@ def rps_tick10ms():
     anim_tick10ms()
 
     # Allow restart with button press
-    if rps_state >= 4:
-        if not (readPin(BUTTON_RIGHT) and readPin(BUTTON_LEFT)):
-            rps_init()
+    if not (readPin(BUTTON_RIGHT) and readPin(BUTTON_LEFT)):
+        rps_init()
 
 
 

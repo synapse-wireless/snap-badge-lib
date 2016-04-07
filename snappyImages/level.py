@@ -1,4 +1,5 @@
 """Level - handy tool for installing whiteboards, hanging pictures, etc.
+   Press and hold either button to "lock" level display.
 """
 
 from drivers.snap_badge import *
@@ -56,10 +57,10 @@ def level_tick100ms():
 # Hook context, for multi-app switching via app_switch.py
 level_context = (level_init, None, None, level_tick100ms, None, None)
 
-# Set hooks if running game standalone
+# Set hooks if running standalone
 if "setHook" in globals():
     snappyGen.setHook(SnapConstants.HOOK_STARTUP, level_start)
-    snappyGen.setHook(SnapConstants.HOOK_10MS, level_tick100ms)
+    snappyGen.setHook(SnapConstants.HOOK_100MS, level_tick100ms)
 
 
 

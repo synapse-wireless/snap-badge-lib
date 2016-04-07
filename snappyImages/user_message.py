@@ -19,12 +19,15 @@ user_msg_text = ""
 def user_message_init():
     global user_msg_text
     user_msg_text = loadNvParam(NV_USER_MSG)
-    init_index = ord('A') - ord(' ') + 3  # Compensate for 3 extra chars
+    if type(user_msg_text) != 2:
+        # Initialize to empty string if not already a string
+        user_msg_text = ""
+    init_index = ord('A') - ord(' ') + 3  # Start on 'A' (compensate for 3 extra chars)
     menu_define(user_menu_icons, DEF8x8, DEF8x8_widths, user_message_select_hook, init_index)
     app_switch(menu_context)
     
 def user_message_select_hook(i_select):
-    global user_msg_text, show_scroller_text
+    global user_msg_text
     select_char = user_menu_icons[i_select]
 
     # If still holding both buttons down, we save and exit
@@ -39,7 +42,8 @@ def user_message_select_hook(i_select):
     if select_char == DEF8x8_EXIT:
         app_exit()
     elif select_char == DEF8x8_BACK:
-        user_msg_text = user_msg_text[:-1]
+        if user_msg_text:
+            user_msg_text = user_msg_text[:-1]
     elif select_char == DEF8x8_ERASE:
         user_msg_text = ""
     elif len(user_msg_text) < USER_MSG_MAXLEN:
