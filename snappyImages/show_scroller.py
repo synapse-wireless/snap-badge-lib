@@ -21,7 +21,7 @@ show_info_mode = False
 
 ANTISOCIAL_BIT = DIP_S8
 antisocial = True
-SOCIAL_NEARBY_SIGNAL = 45   # Threshold for nearby badges we want to associate with (-dBm)
+SOCIAL_NEARBY_SIGNAL = 50   # Threshold for nearby badges we want to associate with (-dBm)
 hello_timer = 0
 HELLO_RATE = 20   # seconds minimum between "Hello" animations
 

@@ -55,7 +55,7 @@ RPS_RULES = ((RPS_ROCK, RPS_SCISSORS),
 
 app_exit = None
 
-RPS_NEARBY_SIGNAL = 45   # Threshold for nearby badges we want to associate with (-dBm)
+RPS_NEARBY_SIGNAL = 55   # Threshold for nearby badges we want to associate with (-dBm)
 
 rps_rx_enable = False
 
