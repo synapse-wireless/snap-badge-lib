@@ -21,7 +21,7 @@ cur_disp_sym = BLANK_DISP
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
 
-rotate_scroll = 0  # Support 0, 90, 180, 270 rotations
+rotate_screen = 0  # Support 0, 90, 180, 270 rotations
 
 def set_display_driver(drv):
     """Set destination for symbol output"""
@@ -46,9 +46,9 @@ def get_indexed_width(ch_code):
     """Return pixel-width of indexed character"""
     return ord(cur_fontwidth[ch_code])
 
-def set_scroll_rotation(deg):
-    global rotate_scroll
-    rotate_scroll = deg
+def set_screen_rotation(deg):
+    global rotate_screen
+    rotate_screen = deg
 
 def scroll_right(disp_sym, next_sym, ipix):
     """Return scrolled version of disp_sym, shifting in new columns from the right"""
@@ -118,11 +118,13 @@ def update_scroll_text(char_gap):
     stext_i_pix += 1
 
     # Write to display
-    ds = rotate_sym(cur_disp_sym, rotate_scroll)
-    display_drv(ds)
+    draw_sym(cur_disp_sym)
     
     return is_start
 
+def draw_sym(sym):
+    """Display symbol to screen with currently set rotation parameter"""
+    display_drv(rotate_sym(sym, rotate_screen))
 
 def rotate_sym(sym, deg):
     """# Support 0, 90, 180, 270 rotations"""

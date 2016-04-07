@@ -77,16 +77,12 @@ esc_btn_hold = 0
 cur_topmenu_selection = 0
 lock_rotation = False
 
-
 @setHook(HOOK_STARTUP)
 def start():
     global lock_rotation
     
     set_display_driver(as1115_write_matrix_symbol)
     badge_start()
-    
-    # Reduce radio transmit power, since we only want to socialize with nearby badges
-    txPwr(0)   # approx 0dBm
     
     # We need buttons
     setPinDir(BUTTON_LEFT, False)
@@ -95,6 +91,11 @@ def start():
     setPinDir(BUTTON_RIGHT, False)
     setPinPullup(BUTTON_RIGHT, True)
     monitorPin(BUTTON_RIGHT, True)
+    
+    # Reduce radio transmit power, since we only want to socialize with nearby badges
+    # Hold right button on boot to get default higher tx power
+    if readPin(BUTTON_RIGHT):
+        txPwr(0)   # approx 0dBm
     
     # Hold left button on boot to lock rotation
     lock_rotation = not readPin(BUTTON_LEFT)
@@ -146,15 +147,13 @@ def esc_background_tick():
     if not lock_rotation:
         poll_rotation()
     
-    
 def poll_rotation():
+    """Support screen-rotation"""
     lis_read()
     print lis_axis_x, ",", lis_axis_y, ",", lis_axis_z
     
-    # Rotate scrolling-text display, with deadband around lying flat
-    if lis_axis_y > 1000 or lis_axis_y < -1000:
+    # Rotate display, with deadband around lying flat
+    if lis_axis_y > 5000 or lis_axis_y < -5000:
         rot = 180 if lis_axis_y > 0 else 0
-        set_scroll_rotation(rot)
-
-    
+        set_screen_rotation(rot)
 

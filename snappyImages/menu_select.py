@@ -143,7 +143,7 @@ def menu_tick10ms():
     menu_button_poll()
     
 def menu_update_display():
-    display_drv(get_indexed_sym(ord(menu_items[menu_selected])))
+    draw_sym(get_indexed_sym(ord(menu_items[menu_selected])))
 
 
 # Hook context, for multi-app switching via app_switch.py

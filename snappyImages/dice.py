@@ -18,7 +18,7 @@ from gestures import *
 # Dice icons are the following indices of Doodads fontset
 dice_icons = '\x07\x08\x09\x0A\x0B\x0C'
 
-DICE_NEARBY_SIGNAL = 60   # Threshold for nearby badges we want to associate with (-dBm)
+DICE_NEARBY_SIGNAL = 45   # Threshold for nearby badges we want to associate with (-dBm)
 
 def dice_start():
     """Startup hook when run standalone"""

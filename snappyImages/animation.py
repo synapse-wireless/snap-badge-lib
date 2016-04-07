@@ -45,7 +45,8 @@ def anim_tick10ms():
 
 def anim_show(i):
     """Show the indexed icon"""
-    display_drv(get_indexed_sym(ord(anim_icon_set[i])))
+    sym = get_indexed_sym(ord(anim_icon_set[i]))
+    draw_sym(sym)
 
 def anim_frame():
     """Show the next frame - driven by time tick"""

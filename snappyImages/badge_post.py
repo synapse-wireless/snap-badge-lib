@@ -6,6 +6,8 @@ Animations can be used for remote-controlled synchronized party fun...
   mcastRpc(1, 2, 'anime', '\x0e\x0f', 30, 10)  # beat
   mcastRpc(1, 2, 'anime', '\x8d\x8e\x8d\x8f\x8d\x8e\x8f', 15, 10)  # dance
   
+  mcastRpc(1, 2, 'message', "Lunch! ", 30)  # Show "Lunch!" message for 30 seconds
+  
 Broadcast pings and dmcast of animations can be used for contests, with random selection controlled by
 a SNAP Connect app at the central host.
 
