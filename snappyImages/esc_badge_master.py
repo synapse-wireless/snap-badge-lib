@@ -1,40 +1,21 @@
 """ESC Badge - master script for SNAP Badges at ESC 
 
-Operation:
-
-Always send "heartbeat" mcast 1-hop every 5 sec.
+Operation: This script manages a top-level menu, and invokes "sub-application" scripts.
 
 Initial state is running "show scroller" script.
-  - Scrolls default (ESC 2016) or personalized message, plus "interest" icons
-  - When near another badge (heartbeat RSSI high), flash "HI"
-        - When other badge matches our "interests", flash special sequence
-  - When near "many" other badges (N > 5), flash synchronized fireworks
-  
-  - "Master Show Broadcast" can override all other modes, with synchronized message for display
-    ** Initiated from laptop (Synapse guys)
-    ** Messages MUST synchronize among all badges!!!
-  - Contest mode:
-    ** Initially all count down: 10...3..2...1...
-    ** All flashing in synchronicity (flash/flash/flash x 10 cycles)
-    ** Successively, badges fade to dark until only winner remains!
-    ** Final winner enters "happy dance"
-    
-  - NOTE: S8 is the "Anti-Social" bit. When ON, you don't participate in remote-initiated multiplayer modes (including HI)...
   - When both buttons pressed, enter "menu select" mode
         - Select from the following:
-            - Enter personal message
-            - RPS game (host/join)  ** NOTE: Default game running in SHOW mode
-                                    **       (shake while holding button to start)
+            - Show scroller (includes "hello" multiplayer mode)
+            - Enter personal message (see user_message.py for details)
+            - RPS game (multiplayer)
             - Snake game
             - Rollerball game
             - Breakout game
-            - Dice
+            - Dice (multiplayer)
             - Reflex test (reaction game)
             - Spirit Level
             - Spectrum Analyzer
             - Robot Controller
-            - ??Maze tag game (host/join)
-            - ??Pong game (host/join)
 
 """
 

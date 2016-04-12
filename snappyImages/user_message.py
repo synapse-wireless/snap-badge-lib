@@ -1,4 +1,8 @@
 """user message - allow selection of new message for show_scroller.
+
+* Message is saved on normal exit (press and hold both buttons).
+* Special symbols: Backspace (<-), Exit without save (!!), and Erase message (!!!)
+
 """
 from menu_select import *
 from app_switch import *
