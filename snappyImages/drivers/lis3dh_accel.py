@@ -33,6 +33,12 @@ LIS_INT1_CFG = '\x30'
 LIS_INT1_SRC = '\x31'
 LIS_INT1_THRESHOLD = '\x32'
 LIS_INT1_DURATION = '\x33'
+LIS_TAP_CFG = '\x38'
+LIS_TAP_SRC = '\x39'
+LIS_TAP_THRESHOLD = '\x3a'
+LIS_TAP_TIME_LIMIT = '\x3b'
+LIS_TAP_TIME_LATENCY = '\x3c'
+LIS_TAP_TIME_WINDOW = '\x3d'
 
 LIS_VFY_DEV_ID  = '\x33'
 LIS_CMD_TEMP_EN = '\x40'    # Enable temperature sensor
@@ -75,6 +81,15 @@ def lis_int1(cfg, thresh, duration):
     i2cWrite(LIS_ADDR_WR + LIS_INT1_CFG + chr(cfg), 1, False)
     i2cWrite(LIS_ADDR_WR + LIS_INT1_THRESHOLD + chr(thresh), 1, False)
     i2cWrite(LIS_ADDR_WR + LIS_INT1_DURATION + chr(duration), 1, False)
+    
+def lis_tap_cfg(src, thresh, cfg, time_limit, latency, window):
+    """Set tap configuration"""
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_SRC + chr(src), 1, False)
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_THRESHOLD + chr(thresh), 1, False)
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_CFG + chr(cfg), 1, False)
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_TIME_LIMIT + chr(time_limit), 1, False)
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_TIME_LATENCY + chr(latency), 1, False)
+    i2cWrite(LIS_ADDR_WR + LIS_TAP_TIME_WINDOW + chr(window), 1, False)
 
 def lis_vfy_mfg_dev():
     """Verify device ID - return True if correct"""
@@ -99,6 +114,12 @@ def lis_wake():
 def lis_sleep():
     """Shutdown operation - draws <1uA"""
     lis_ctrl(1, 0x00)   # ODR=0 is power down
+    
+def lis_interrupt_check():
+    """Read interrupt status register and return the status of INT1"""
+    i2cWrite(LIS_ADDR_WR + LIS_INT1_SRC , 1, False)
+    s = i2cRead(LIS_INT1_SRC, 1, 1, False)
+    return ord(s) & 0x40
 
 def dump_axes():
     """Debug - send axis values to stdout"""
