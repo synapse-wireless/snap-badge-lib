@@ -1,4 +1,9 @@
-"""Test script for SNAP Badge"""
+"""Test script for SNAP Badge
+
+Next steps:
+  When no buttons pressed, display reflects DIP switch (columns) and accelerometer (height) bar-graph.
+  Left hold = All off, Right hold = All on, Both = Checker
+"""
 
 from drivers.snap_badge import *
 from synapse.switchboard import *

@@ -4,7 +4,7 @@ Converts 8x8 pixel font files such as those curated in C64 archives, or editors 
     https://www.min.at/prinz/o/software/pixelfont/
 
 # Output is string-encoded widths (up to 255 chars) and tuple of 128-byte strings (16 8-byte symbols per string)
-font_widths = "\xNN\xNN..."
+font_widths = "xNNxNN..."
 font_tup = ("xxxx","xxxx","xxxx",)
 
 

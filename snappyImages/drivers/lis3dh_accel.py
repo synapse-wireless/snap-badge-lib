@@ -57,6 +57,7 @@ LIS_INT1_DUR_VAL  = 0x00
 
 def lis_init():
     """First time initialization"""
+    sleep(2, -5) # Wait 5ms for LIS3DH boot procedure (power-on trim)
     lis_ctrl(1, LIS_CTRL_VAL1)
     lis_ctrl(2, LIS_CTRL_VAL2)
     lis_ctrl(3, LIS_CTRL_VAL3)

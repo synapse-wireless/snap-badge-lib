@@ -1,3 +1,3 @@
 [submodule "snappyImages/snap_shields"]
 	path = snappyImages/snap_shields
-	url = https://github.com/DavidEwing/snap_shields.git
+    url = https://github.com/synapse-wireless/snap-shields.git

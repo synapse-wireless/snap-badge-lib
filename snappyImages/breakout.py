@@ -9,23 +9,21 @@ MAX_BRICK_LINE = 3
 delay = 0
 delay_counter = 0
 
-@setHook(HOOK_STARTUP)
-def start():
-    badge_init_pins()
-    badge_led_array_enable(True)
+def breakout_start():
+    """Startup hook when run standalone"""
+    badge_start()
     
     monitorPin(BUTTON_LEFT, True)
     monitorPin(BUTTON_RIGHT, True)
 
-    init_game()
+    breakout_init()
 
-def set_delay(new_delay):
+def breakout_set_delay(new_delay):
     global delay, delay_counter
     delay = new_delay
     delay_counter = delay
     
-@setHook(HOOK_100MS)
-def tick_100ms():
+def breakout_tick100ms():
     global delay_counter
     if delay_counter > 0:
         delay_counter -= 1
@@ -33,11 +31,10 @@ def tick_100ms():
             delay_counter = delay
         else:
             return
-    update_ball()
+    _update_ball()
     refresh_pixels()
 
-@setHook(HOOK_GPIN)
-def pin_event(pin, is_set):
+def breakout_pin_event(pin, is_set):
     if not is_set:
         # Button combinations
         #lb = not readPin(BUTTON_LEFT)
@@ -49,7 +46,7 @@ def pin_event(pin, is_set):
         elif pin == BUTTON_RIGHT:
             paddle_right()
 
-def init_game():
+def breakout_init():
     global ball_x, ball_y, ball_x_vel, ball_y_vel
     global paddle_x, paddle_y, paddle_width
     global score
@@ -65,12 +62,6 @@ def init_game():
             set_pixel(col, row)
             col += 1
         row += 1
-
-    # Experiment - try for a psuedo-3D effect by applying a gradient to the entire screen
-    as1115_wr(DIG01_INTENS, 0x10)
-    as1115_wr(DIG23_INTENS, 0x32)
-    as1115_wr(DIG45_INTENS, 0x54)
-    as1115_wr(DIG67_INTENS, 0x76)
 
     paddle_x = 0 # we are tracking the paddle by it's left-most edge
     paddle_y = 7
@@ -88,7 +79,7 @@ def init_game():
 
     refresh_pixels()
 
-    set_delay(0)
+    breakout_set_delay(0)
 
 
 def paddle(is_visible):
@@ -125,7 +116,7 @@ def paddle_right():
     paddle(True)
     refresh_pixels()
 
-def update_ball():
+def _update_ball():
     global ball_x, ball_y, ball_x_vel, ball_y_vel, score
 
     # Compute TENTATIVE next position for the ball
@@ -197,4 +188,14 @@ def update_ball():
     set_pixel(new_x, new_y)
     ball_x = new_x
     ball_y = new_y
+
+# Hook context, for multi-app switching via app_switch.py
+breakout_context = (breakout_init, None, None, breakout_tick100ms, None, breakout_pin_event)
+
+# Set hooks if running game standalone
+if "setHook" in globals():
+    snappyGen.setHook(SnapConstants.HOOK_STARTUP, breakout_start)
+    snappyGen.setHook(SnapConstants.HOOK_10MS, breakout_tick100ms)
+    snappyGen.setHook(SnapConstants.HOOK_GPIN, breakout_pin_event)
+
 

@@ -15,10 +15,13 @@ stext_str = ''
 cur_next_width = 0  # width of symbol being scrolled-in
 
 # Current displayed symbol, in 8-byte string format
-cur_disp_sym = "\x00" * 8
+BLANK_DISP = "\x00" * 8
+cur_disp_sym = BLANK_DISP
 
 # Display driver is a function which takes a single symbol (8-byte string) parameter
 display_drv = None
+
+rotate_screen = 0  # Support 0, 90, 180, 270 rotations
 
 def set_display_driver(drv):
     """Set destination for symbol output"""
@@ -43,6 +46,10 @@ def get_indexed_width(ch_code):
     """Return pixel-width of indexed character"""
     return ord(cur_fontwidth[ch_code])
 
+def set_screen_rotation(deg):
+    global rotate_screen
+    rotate_screen = deg
+
 def scroll_right(disp_sym, next_sym, ipix):
     """Return scrolled version of disp_sym, shifting in new columns from the right"""
     sym = ''
@@ -64,27 +71,35 @@ def scroll_right(disp_sym, next_sym, ipix):
     
 def set_scroll_text(text):
     """Start scrolling text"""
-    global stext_i_ch, stext_i_pix, stext_str
+    global stext_i_ch, stext_i_pix, stext_str, cur_next_width, cur_disp_sym
     stext_i_ch = 0
     stext_i_pix = 0
     stext_str = text
-
-    return (len(text) -2) * 8
+    cur_next_width = 0
+    cur_disp_sym = BLANK_DISP
 
 def stop_scroll_text():
     """Stop scrolling text"""
     global stext_str
     stext_str = ''
     
+def set_scroll_index(i_ch):
+    global stext_i_ch
+    if i_ch < len(stext_str):
+        stext_i_ch = i_ch
+    
 def update_scroll_text(char_gap):
     """Call periodically to update scroll text position.
-       Intercharacter pixel space set by char_gap.    
+       Intercharacter pixel space set by char_gap.
+       Returns True when new character is about to scroll in.
     """
     global stext_i_ch, stext_i_pix, cur_disp_sym, cur_next_sym, cur_next_width
     
     if not stext_str:
         # Nothing to do if no text to display
         return
+
+    is_start = (stext_i_pix == 0)
     
     if stext_i_pix == cur_next_width:
         # Start shifting in a new character
@@ -103,9 +118,53 @@ def update_scroll_text(char_gap):
     stext_i_pix += 1
 
     # Write to display
-    display_drv(cur_disp_sym)
+    draw_sym(cur_disp_sym)
+    
+    return is_start
 
+def draw_sym(sym):
+    """Display symbol to screen with currently set rotation parameter"""
+    display_drv(rotate_sym(sym, rotate_screen))
+
+def rotate_sym(sym, deg):
+    """# Support 0, 90, 180, 270 rotations"""
+    if deg == 0:
+        return sym
+    
+    rot = [0] * 8
+    
+    if deg == 90:
+        for i in xrange(8):
+            r = ord(sym[i])   # this row of sym rotates to...
+            b = 1 << i        # this bit position in rows of rot
+            for j in xrange(8):
+                if (1 << j) & r:
+                    val = rot[7-j]
+                    rot[7-j] = val | b
+                    
+    elif deg == 180:
+        for i in xrange(8):
+            r = ord(sym[i])
+            t = 0
+            for j in xrange(8):
+                if (r & (1 << j)):
+                    t |= (0x80 >> j)
+            rot[7-i] = t
             
+    elif deg == 270:
+        for i in xrange(8):
+            r = ord(sym[i])   # this row of sym rotates to...
+            b = 0x80 >> i     # this bit position in rows of rot
+            for j in xrange(8):
+                if (1 << j) & r:
+                    val = rot[j]
+                    rot[j] = val | b
+                    
+    else:
+        return sym
+    
+    return chr(rot)
+
 def test_display_driver_print(sym):
     """Simulate 8x8 display with print statements. Doesn't display very well on Portal's event log."""
     dsp = '--------\n'

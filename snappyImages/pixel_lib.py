@@ -40,3 +40,9 @@ def test_pixel(x, y):
 
 def refresh_pixels():
     as1115_write_matrix_symbol(chr(playfield)) # library wants a string, not a byte list
+    
+def set_pixmap(symbol_buf):
+    """Set pixel_lib to use given symbol buffer""" 
+    global playfield
+    playfield = [symbol_buf]
+
